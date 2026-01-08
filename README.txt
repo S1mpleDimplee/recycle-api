@@ -1,1 +1,1 @@
-Clone de repository in je XAMMP/htdocs/tandartspraktijkBackend (maak de tandartspraktijkBackend file zelf aan)
+Clone de repository in je XAMMP/htdocs/sparesort-api (maak de sparesort-api file zelf aan)
