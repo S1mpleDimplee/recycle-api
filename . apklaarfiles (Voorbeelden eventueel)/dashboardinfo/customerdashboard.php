@@ -4,7 +4,7 @@ function fetchCustomerDashboard($data, $connection)
 {
     $userid = $data['userid'] ?? null;
 
-    $userid = mysqli_real_escape_string($connection, $userid);
+    $userid = pg_real_escape_string($connection, $userid);
 
     $sql = "SELECT 
                 (SELECT count(*) FROM invoice WHERE (status = 'pending' OR status = 'onbetaald') AND userid = '$userid') AS openInvoices,
@@ -13,9 +13,9 @@ function fetchCustomerDashboard($data, $connection)
                 (SELECT concat(model, ' ', brand) FROM car WHERE userid = '$userid' ORDER BY lastinspection DESC LIMIT 1) AS lastAPKCarName,
                 (SELECT lastinspection FROM car WHERE userid = '$userid' ORDER BY lastinspection DESC LIMIT 1) AS lastAPKCarDate
             ";
-    $result = mysqli_query($connection, $sql);
+    $result = pg_query($connection, $sql);
     if (!$result) {
-        error_log("Fout bij het ophalen van dashboardgegevens: " . mysqli_error($connection));
+        error_log("Fout bij het ophalen van dashboardgegevens: " . pg_error($connection));
         echo json_encode([
             "success" => false,
             "message" => "Fout bij het ophalen van dashboardgegevens"
@@ -23,7 +23,7 @@ function fetchCustomerDashboard($data, $connection)
         return;
     }
 
-    $row = mysqli_fetch_assoc($result);
+    $row = pg_fetch_assoc($result);
 
     $appointmentsSql = "SELECT a.*, 
                         (SELECT carnickname FROM car WHERE car.carid = a.carid) AS carNickname,
@@ -32,9 +32,9 @@ function fetchCustomerDashboard($data, $connection)
                         FROM appointments a 
                         WHERE userid = '$userid' AND appointmentDate >= CURDATE() 
                         ORDER BY appointmentdate ASC";
-    $appointmentsResult = mysqli_query($connection, $appointmentsSql);
+    $appointmentsResult = pg_query($connection, $appointmentsSql);
     $appointments = [];
-    while ($appointment = mysqli_fetch_assoc($appointmentsResult)) {
+    while ($appointment = pg_fetch_assoc($appointmentsResult)) {
         $appointments[] = $appointment;
     }
 
