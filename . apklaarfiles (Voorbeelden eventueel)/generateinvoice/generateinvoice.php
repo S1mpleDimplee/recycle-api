@@ -53,7 +53,7 @@ function generateinvoice($data, $connection)
     // mysqli_stmt_bind_param($stmt, "i", $invoiceid);
     // mysqli_stmt_execute($stmt);
     // $result = mysqli_stmt_get_result($stmt);
-    // $lines = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    // $lines = mysqli_fetch_all($result, mysqli_ASSOC);
 
     // Als er geen lines zijn, maak een default regel
     $lines = [];

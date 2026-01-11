@@ -5,7 +5,7 @@ function getAllDentists($conn)
 {
     $sql = "SELECT CONCAT(firstname, ' ', lastname) AS name, userid FROM users WHERE role = 1";
     $result = mysqli_query($conn, $sql);
-    $dentists = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $dentists = mysqli_fetch_all($result, mysqli_ASSOC);
 
 
     if (!$dentists) {

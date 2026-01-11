@@ -1,8 +1,14 @@
 <?php
 function isEmailRegistered($email, $conn)
 {
-    $sql = "SELECT * FROM user WHERE email='$email'";
-    $result = mysqli_query($conn, $sql);
+    // Use parameterized query to prevent SQL injection
+    $sql = "SELECT * FROM users WHERE email = $1";
+    $result = mysqli_query_params($conn, $sql, array($email));
+
+    if (!$result) {
+        return false; // or handle error appropriately
+    }
+
     return mysqli_num_rows($result) > 0;
 }
 ?>

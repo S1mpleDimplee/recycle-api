@@ -1,5 +1,6 @@
 <?php
-function getAllUsers($conn) {
+function getAllUsers($conn)
+{
     $sql = "
         SELECT 
             userid,
@@ -26,7 +27,7 @@ function getAllUsers($conn) {
 
     echo json_encode([
         'success' => true,
-        'data' => mysqli_fetch_all($result, MYSQLI_ASSOC)
+        'data' => mysqli_fetch_all($result, mysqli_ASSOC)
     ]);
 }
 

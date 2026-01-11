@@ -17,7 +17,7 @@ function getcars($data, $conn)
     ]);
     return;
   } else {
-    echo json_encode([  
+    echo json_encode([
       "success" => true,
       "message" => "Auto's succesvol opgehaald",
       "data" => $cars

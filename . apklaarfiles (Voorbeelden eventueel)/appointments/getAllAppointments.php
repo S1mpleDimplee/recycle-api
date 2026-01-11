@@ -24,21 +24,21 @@ function getAllAppointments($conn)
 
   $result = mysqli_query($conn, $sql);
 
-   if (!$result) {
-        http_response_code(500); // Set proper HTTP status
-        echo json_encode([
-            "success" => false,
-            "message" => mysqli_error($conn),
-            "data" => []
-        ]);
-        exit;
-    }
-
-    $appointments = mysqli_fetch_all($result, MYSQLI_ASSOC);
-
+  if (!$result) {
+    http_response_code(500); // Set proper HTTP status
     echo json_encode([
-        "success" => true,
-        "data" => $appointments
+      "success" => false,
+      "message" => mysqli_error($conn),
+      "data" => []
     ]);
-    exit; // Ensure nothing else is output
+    exit;
+  }
+
+  $appointments = mysqli_fetch_all($result, mysqli_ASSOC);
+
+  echo json_encode([
+    "success" => true,
+    "data" => $appointments
+  ]);
+  exit; // Ensure nothing else is output
 }

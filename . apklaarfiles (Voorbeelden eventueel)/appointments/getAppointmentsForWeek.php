@@ -1,5 +1,6 @@
 <?php
-function getAppointmentsForWeek(int $year, int $week, string $mechanicId, $conn) {
+function getAppointmentsForWeek(int $year, int $week, string $mechanicId, $conn)
+{
     header('Content-Type: application/json');
 
     try {
@@ -8,7 +9,7 @@ function getAppointmentsForWeek(int $year, int $week, string $mechanicId, $conn)
         // Use 'W' format to ensure we are following ISO-8601
         $date->setISODate($year, $week, 1); // The '1' signifies Monday
         $monday = $date->format('Y-m-d');
-        
+
         $date->modify('+6 days'); // Change to +6 to include the full weekend (Sunday)
         $sunday = $date->format('Y-m-d');
 
@@ -24,7 +25,7 @@ function getAppointmentsForWeek(int $year, int $week, string $mechanicId, $conn)
         $stmt->bind_param("sss", $mechanicId, $monday, $sunday);
         $stmt->execute();
         $result = $stmt->get_result();
-        $appointments = $result->fetch_all(MYSQLI_ASSOC);
+        $appointments = $result->fetch_all(mysqli_ASSOC);
 
         echo json_encode([
             "isSuccess" => true,

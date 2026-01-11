@@ -8,7 +8,7 @@ function getAllPatients($conn)
             JOIN useradresses ON users.userid = useradresses.userid 
             WHERE users.role = 0";
     $result = mysqli_query($conn, $sql);
-    $patients = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $patients = mysqli_fetch_all($result, mysqli_ASSOC);
 
 
     if (!$patients) {
