@@ -7,6 +7,7 @@ function isPasswordStrong($password, &$message)
     if (strlen($password) < 8) {
         $message = "Wachtwoord moet minimaal 8 tekens bevatten";
         return false;
+    }
     if (!preg_match('/[A-Z]/', $password)) {
         $message = "Wachtwoord moet minimaal één hoofdletter bevatten";
         return false;
@@ -123,4 +124,4 @@ function checkLogin($data, $conn)
         ]);
     }
 }
-?>
+?>  
