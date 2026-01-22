@@ -7,7 +7,7 @@ header("Content-Type: application/json");
 session_start();
 
 // Database connection
-$connection = mysqli_connect("localhost", "root", "", "sparesort");
+$connection = mysqli_connect("localhost", "jaylanovanderv_sparesortDB", "uYQ7pNDnxz4xvH2KjmBb", "jaylanovanderv_sparesortDB");
 if (!$connection) {
     die(json_encode([
         "success" => false,
