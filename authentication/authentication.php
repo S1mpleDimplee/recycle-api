@@ -29,7 +29,7 @@ function addUser($data, $conn)
     $phonenumber = $data['phonenumber'] ?? null;
     $password = $data['password'] ?? null;
 
-    if (empty($email) || empty($password)) {
+    if (empty($email) || empty($password) || empty($phonenumber)) {
         echo json_encode([
             "success" => false,
             "message" => "Alle verplichte velden moeten ingevuld zijn"
@@ -55,10 +55,12 @@ function addUser($data, $conn)
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO users (email, phonenumber, password, created_at) 
-            VALUES ($email, $phonenumber, $hashedPassword, NOW()) ";
+    $sql = "INSERT INTO user (email, phonenumber, password, name, created_at) 
+            VALUES (?, ?, ?, ?, NOW())";
 
-    $result = mysqli_query_params($conn, $sql, array($email, $phonenumber, $hashedPassword));
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'ssss', $email, $phonenumber, $hashedPassword, $name);
+    $result = mysqli_stmt_execute($stmt);
 
     if (!$result) {
         echo json_encode([
@@ -68,8 +70,7 @@ function addUser($data, $conn)
         return;
     }
 
-    $row = mysqli_fetch_assoc($result);
-    $userid = $row['userid'];
+    $userid = mysqli_insert_id($conn);
 
     echo json_encode([
         "success" => true,
@@ -93,8 +94,10 @@ function checkLogin($data, $conn)
         return;
     }
 
-    $sql = "SELECT * FROM users WHERE email = $email";
-    $result = mysqli_query_params($conn, $sql, array($email));
+    $sql = "SELECT * FROM user WHERE email = $email";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    $result = mysqli_stmt_execute($stmt);
 
     if (!$result) {
         echo json_encode([
