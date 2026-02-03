@@ -94,7 +94,7 @@ function checkLogin($data, $conn)
         return;
     }
 
-    $sql = "SELECT * FROM user WHERE email = $email";
+    $sql = "SELECT * FROM user WHERE email = ?";
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, 's', $email);
     $result = mysqli_stmt_execute($stmt);
@@ -107,6 +107,7 @@ function checkLogin($data, $conn)
         return;
     }
 
+    $result = mysqli_stmt_get_result($stmt);
     $user = mysqli_fetch_assoc($result);
 
     if ($user && password_verify($password, $user['password'])) {
@@ -114,7 +115,7 @@ function checkLogin($data, $conn)
             "success" => true,
             "message" => "Login successful",
             "data" => [
-                "userid" => $user['userid'],
+                "userid" => $user['id'],
                 "email" => $user['email'],
                 "role" => $user['role'] ?? null,
                 "phonenumber" => $user['phonenumber']
