@@ -8,7 +8,7 @@ function GetAllLodges($conn)
       capacity,
       base_price,
       description
-    FROM lodges
+    FROM lodge
     ORDER BY created_at DESC
   ";
 
