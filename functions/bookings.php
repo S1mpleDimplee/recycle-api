@@ -26,10 +26,10 @@ function CancelBooking($data, $conn)
     }
 }
 // Create customer booking
-function createAppointment($data, $conn)
+function CreateBooking($data, $conn)
 {
+    $id = $data['id'];
     $userid = $data['userid'];
-    $mechanicid = $data['mechanicid'];
     $carid = $data['carid'];
     $carname = $data['carname'] ?? 'Onbekende auto';
     $appointmentDate = $data['appointmentDate'];
@@ -39,11 +39,11 @@ function createAppointment($data, $conn)
     $totalGrossPrice = $data['totals']['grossPrice'];
     $totalLaborTime = $data['totals']['totalLaborTime'];
 
-    $sql = "INSERT INTO appointments ( userid, mechanicid, carid, appointmentDate, appointmentTime, repairs, totalNetPrice, totalGrossPrice, totalLaborTime) 
-            VALUES ('$userid', '$mechanicid', '$carid', '$appointmentDate', '$appointmentTime', '$repairs', '$totalNetPrice', '$totalGrossPrice', '$totalLaborTime')";
+    $sql = "INSERT INTO booking ( id, mechanicid, carid, appointmentDate, appointmentTime, repairs, totalNetPrice, totalGrossPrice, totalLaborTime) 
+            VALUES ('$id', '$userid', '$carid', '$appointmentDate', '$appointmentTime', '$repairs', '$totalNetPrice', '$totalGrossPrice', '$totalLaborTime')";
 
 
-    if ($userid && $carid && $appointmentDate && $appointmentTime && $repairs && $totalNetPrice && $totalGrossPrice && $totalLaborTime) {
+    if ($id && $carid && $appointmentDate && $appointmentTime && $repairs && $totalNetPrice && $totalGrossPrice && $totalLaborTime) {
     } else {
         echo json_encode([
             "success" => false,
