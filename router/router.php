@@ -44,6 +44,10 @@ switch ($function) {
     case 'loginuser':
         checkLogin($data, $connection);
         break;
+    case 'getalllodges':
+        GetAllLodges($connection);
+        break;
+
     default:
         echo json_encode([
             "success" => false,
