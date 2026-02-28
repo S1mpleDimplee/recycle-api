@@ -1,6 +1,7 @@
 <?php
 include_once '../authentication/authentication.php';
 include_once '../functions/users/GetAllUsers.php';
+include_once '../functions/users/GetUserData.php';
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Credentials: true");
@@ -50,6 +51,9 @@ switch ($function) {
         break;
     case 'getallusers':
         GetAllUsers($connection);
+        break;
+    case 'getuserdata':
+        GetUserData($data, $connection);
         break;
     default:
         echo json_encode([
