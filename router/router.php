@@ -49,7 +49,10 @@ switch ($function) {
         GetAllLodges($connection);
         break;
     case 'sendverificationmail':
-        SendVerificationEmail($data);
+        SendVerificationEmail($data, $connection);
+        break;
+    case 'confirmemailwithlink':
+        confirmEmailWithLink($data, $connection);
         break;
 
     default:
