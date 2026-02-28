@@ -1,5 +1,6 @@
 <?php
 include_once '../authentication/authentication.php';
+include_once '../functions/mail/confirmEmailAddress.php';
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Credentials: true");
@@ -46,6 +47,9 @@ switch ($function) {
         break;
     case 'getalllodges':
         GetAllLodges($connection);
+        break;
+    case 'sendverificationmail':
+        SendVerificationEmail($data);
         break;
 
     default:
