@@ -1,6 +1,6 @@
 <?php
 
-include_once '../functions/isEmailRegistered.php';
+include_once '../functions/mail/isEmailRegistered.php';
 
 function isPasswordStrong($password, &$message)
 {
@@ -28,8 +28,9 @@ function addUser($data, $conn)
     $email = $data['email'] ?? null;
     $phonenumber = $data['phonenumber'] ?? null;
     $password = $data['password'] ?? null;
+    $name = $data['name'] ?? $data['firstname'] ?? $email ?? '';
 
-    if (empty($email) || empty($password)) {
+    if (empty($email) || empty($password) || empty($phonenumber)) {
         echo json_encode([
             "success" => false,
             "message" => "Alle verplichte velden moeten ingevuld zijn"
@@ -55,10 +56,12 @@ function addUser($data, $conn)
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO users (email, phonenumber, password, created_at) 
-            VALUES ($email, $phonenumber, $hashedPassword, NOW()) ";
+    $sql = "INSERT INTO user (email, phonenumber, password, name, created_at) 
+            VALUES (?, ?, ?, ?, NOW())";
 
-    $result = mysqli_query_params($conn, $sql, array($email, $phonenumber, $hashedPassword));
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'ssss', $email, $phonenumber, $hashedPassword, $name);
+    $result = mysqli_stmt_execute($stmt);
 
     if (!$result) {
         echo json_encode([
@@ -68,8 +71,7 @@ function addUser($data, $conn)
         return;
     }
 
-    $row = mysqli_fetch_assoc($result);
-    $userid = $row['userid'];
+    $userid = mysqli_insert_id($conn);
 
     echo json_encode([
         "success" => true,
@@ -93,8 +95,10 @@ function checkLogin($data, $conn)
         return;
     }
 
-    $sql = "SELECT * FROM users WHERE email = $email";
-    $result = mysqli_query_params($conn, $sql, array($email));
+    $sql = "SELECT * FROM user WHERE email = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    $result = mysqli_stmt_execute($stmt);
 
     if (!$result) {
         echo json_encode([
@@ -104,6 +108,7 @@ function checkLogin($data, $conn)
         return;
     }
 
+    $result = mysqli_stmt_get_result($stmt);
     $user = mysqli_fetch_assoc($result);
 
     if ($user && password_verify($password, $user['password'])) {
@@ -111,7 +116,7 @@ function checkLogin($data, $conn)
             "success" => true,
             "message" => "Login successful",
             "data" => [
-                "userid" => $user['userid'],
+                "userid" => $user['id'],
                 "email" => $user['email'],
                 "role" => $user['role'] ?? null,
                 "phonenumber" => $user['phonenumber']

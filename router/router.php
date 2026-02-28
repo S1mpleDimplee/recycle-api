@@ -1,5 +1,6 @@
 <?php
 include_once '../authentication/authentication.php';
+include_once '../functions/mail/confirmEmailAddress.php';
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Credentials: true");
@@ -44,6 +45,16 @@ switch ($function) {
     case 'loginuser':
         checkLogin($data, $connection);
         break;
+    case 'getalllodges':
+        GetAllLodges($connection);
+        break;
+    case 'sendverificationmail':
+        SendVerificationEmail($data, $connection);
+        break;
+    case 'confirmemailwithlink':
+        confirmEmailWithLink($data, $connection);
+        break;
+
     default:
         echo json_encode([
             "success" => false,
