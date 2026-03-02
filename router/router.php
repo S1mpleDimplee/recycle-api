@@ -1,6 +1,18 @@
 <?php
+header("Access-Control-Allow-Origin: http://localhost:3000");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json");
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+session_start();
+
 include_once '../authentication/authentication.php';
-include_once '../functions/mail/confirmEmailAddress.php';
 include_once '../functions/users/GetAllUsers.php';
 include_once '../functions/users/GetUserData.php';
 include_once '../functions/lodges/AddLodge.php';
@@ -14,13 +26,6 @@ include_once '../functions/Schedules/bookings.php';
 include_once '../functions/Schedules/mechanic.php';
 include_once '../functions/Schedules/receptionist.php';
 
-header("Access-Control-Allow-Origin: http://localhost:3000");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
-session_start();
-
 // Database connection
 $connection = mysqli_connect("jaylanovanderveen.nl", "jaylanovanderv_sparesortDB", "uYQ7pNDnxz4xvH2KjmBb", "jaylanovanderv_sparesortDB");
 if (!$connection) {
@@ -28,11 +33,6 @@ if (!$connection) {
         "success" => false,
         "message" => "Connectie met de database is mislukt contacteer ons via sparesortbali@gmail.com"
     ]));
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
 }
 
 // Read the received  data
