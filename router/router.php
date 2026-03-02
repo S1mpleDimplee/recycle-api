@@ -2,6 +2,10 @@
 include_once '../authentication/authentication.php';
 include_once '../functions/users/GetAllUsers.php';
 include_once '../functions/users/GetUserData.php';
+include_once '../functions/lodges/AddLodge.php';
+include_once '../functions/lodges/GetAllLodges.php';
+include_once '../functions/lodges/UpdateLodge.php';
+include_once '../functions/lodges/GetLodgeInfo.php';
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Credentials: true");
@@ -54,6 +58,15 @@ switch ($function) {
         break;
     case 'getuserdata':
         GetUserData($data, $connection);
+        break;
+    case 'addlodge':
+        addLodge($data, $connection);
+        break;
+    case 'updatelodge':
+        UpdateLodge($data, $connection);
+        break;
+    case 'getlodgeinfo':
+        GetLodgeInfo($data, $connection);
         break;
     default:
         echo json_encode([
