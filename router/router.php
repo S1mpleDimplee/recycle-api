@@ -8,6 +8,11 @@ include_once '../functions/lodges/GetAllLodges.php';
 include_once '../functions/lodges/UpdateLodge.php';
 include_once '../functions/lodges/GetLodgeInfo.php';
 include_once '../functions/lodges/DeleteLodge.php';
+include_once '../functions/receptionist.php';
+include_once '../functions/Schedules/manager.php';
+include_once '../functions/Schedules/bookings.php';
+include_once '../functions/Schedules/mechanic.php';
+include_once '../functions/Schedules/receptionist.php';
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Credentials: true");
@@ -78,6 +83,36 @@ switch ($function) {
         break;
     case 'deletelodge':
         DeleteLodge($data, $connection);
+        break;
+    case 'getallbookings':
+        GetAllBookings($connection);
+        break;
+    case 'cancelbooking':
+        CancelBooking($data, $connection);
+        break;
+    case 'createbooking':
+        CreateBooking($data, $connection);
+        break;
+    case 'changebooking':
+        ChangeBooking($data, $connection);
+        break;
+    case "getbookingsbyuserid":
+        GetBookingsByUserId($data, $connection);
+        break;
+    case "getallrepairs":
+        GetAllRepairs($connection);
+        break;
+    case "updaterepairmaintenance":
+        UpdateRepairMaintenance($data, $connection);
+        break;
+    case "updaterepairavailable":
+        UpdateRepairAvailable($data, $connection);
+        break;
+    case "getavailablelodges":
+        GetAvailableLodges($data, $connection);
+        break;
+    case "getcleaningschedule":
+        GetCleaningSchedule($connection);
         break;
     default:
         echo json_encode([
