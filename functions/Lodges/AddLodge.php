@@ -10,7 +10,7 @@ function addLodge($data, $connection)
 	$people = mysqli_real_escape_string($connection, $data['aantalPersonen'] ?? 2);
 	$price = mysqli_real_escape_string($connection, $data['priceRegular'] ?? '');
 	$price_winter = mysqli_real_escape_string($connection, $data['priceWinter'] ?? '');
-	$lodge_type_id = mysqli_real_escape_string($connection, $data['lodge_type_id'] ?? 1);
+	$lodge_type_id = mysqli_real_escape_string($connection, $data['lodge_type_id'] ?? null);
 	$image = mysqli_real_escape_string($connection, $data['image'] ?? '');
 
 	if (empty($name)) {
