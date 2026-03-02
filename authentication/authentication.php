@@ -28,6 +28,7 @@ function addUser($data, $conn)
     $email = $data['email'] ?? null;
     $phonenumber = $data['phonenumber'] ?? null;
     $password = $data['password'] ?? null;
+    $name = $data['name'] ?? $data['firstname'] ?? $email ?? '';
 
     if (empty($email) || empty($password) || empty($phonenumber)) {
         echo json_encode([
