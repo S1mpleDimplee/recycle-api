@@ -15,17 +15,26 @@ session_start();
 include_once '../authentication/authentication.php';
 include_once '../functions/users/GetAllUsers.php';
 include_once '../functions/users/GetUserData.php';
+include_once '../functions/users/UpdateUserData.php';
+include_once '../functions/users/DeleteUser.php';
 include_once '../functions/lodges/AddLodge.php';
 include_once '../functions/lodges/GetAllLodges.php';
 include_once '../functions/lodges/UpdateLodge.php';
 include_once '../functions/lodges/GetLodgeInfo.php';
 include_once '../functions/lodges/DeleteLodge.php';
+include_once '../functions/manager/getManagerDashboardInfo.php';
 include_once '../functions/receptionist.php';
 include_once '../functions/Schedules/manager.php';
 include_once '../functions/Schedules/bookings.php';
 include_once '../functions/Schedules/mechanic.php';
 include_once '../functions/Schedules/receptionist.php';
 
+header("Access-Control-Allow-Origin: http://localhost:3000");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json");
+session_start();
 // Database connection
 $connection = mysqli_connect("jaylanovanderveen.nl", "jaylanovanderv_sparesortDB", "uYQ7pNDnxz4xvH2KjmBb", "jaylanovanderv_sparesortDB");
 if (!$connection) {
@@ -72,6 +81,12 @@ switch ($function) {
     case 'getuserdata':
         GetUserData($data, $connection);
         break;
+    case 'deleteuser':
+        DeleteUser($data, $connection);
+        break;
+    case 'updateuserdata':
+        UpdateUserData($data, $connection);
+        break;
     case 'addlodge':
         addLodge($data, $connection);
         break;
@@ -84,6 +99,8 @@ switch ($function) {
     case 'deletelodge':
         DeleteLodge($data, $connection);
         break;
+    case 'getmanagerdashboardinfo':
+        GetManagerDashboardInfo($connection);
     case 'getallbookings':
         GetAllBookings($connection);
         break;
