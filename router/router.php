@@ -1,5 +1,6 @@
 <?php
 include_once '../authentication/authentication.php';
+include_once '../functions/mail/confirmEmailAddress.php';
 include_once '../functions/users/GetAllUsers.php';
 include_once '../functions/users/GetUserData.php';
 include_once '../functions/lodges/AddLodge.php';
@@ -53,6 +54,12 @@ switch ($function) {
         break;
     case 'getalllodges':
         GetAllLodges($connection);
+        break;
+    case 'sendverificationmail':
+        SendVerificationEmail($data, $connection);
+        break;
+    case 'confirmemailwithlink':
+        confirmEmailWithLink($data, $connection);
         break;
     case 'getallusers':
         GetAllUsers($connection);
