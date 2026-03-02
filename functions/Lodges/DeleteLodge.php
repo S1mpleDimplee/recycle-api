@@ -3,7 +3,7 @@
 
 function DeleteLodge($data, $connection)
 {
-   $id = mysqli_real_escape_string($connection, $data['id'] ?? '');
+   $id = $data['id'] ?? '';
 
    if (empty($id)) {
       echo json_encode(["success" => false, "message" => "Lodge ID is verplicht"]);

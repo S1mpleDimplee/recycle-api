@@ -4,7 +4,7 @@ function fetchCustomerDashboard($data, $connection)
 {
     $userid = $data['userid'] ?? null;
 
-    $userid = mysqli_real_escape_string($connection, $userid);
+    $userid = $userid;
 
     $sql = "SELECT 
                 (SELECT count(*) FROM invoice WHERE (status = 'pending' OR status = 'onbetaald') AND userid = '$userid') AS openInvoices,

@@ -3,6 +3,8 @@ include_once '../authentication/authentication.php';
 include_once '../functions/mail/confirmEmailAddress.php';
 include_once '../functions/users/GetAllUsers.php';
 include_once '../functions/users/GetUserData.php';
+include_once '../functions/users/UpdateUserData.php';
+include_once '../functions/users/DeleteUser.php';
 include_once '../functions/lodges/AddLodge.php';
 include_once '../functions/lodges/GetAllLodges.php';
 include_once '../functions/lodges/UpdateLodge.php';
@@ -67,6 +69,12 @@ switch ($function) {
         break;
     case 'getuserdata':
         GetUserData($data, $connection);
+        break;
+    case 'deleteuser':
+        DeleteUser($data, $connection);
+        break;
+    case 'updateuserdata':
+        UpdateUserData($data, $connection);
         break;
     case 'addlodge':
         addLodge($data, $connection);

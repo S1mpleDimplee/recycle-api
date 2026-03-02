@@ -2,16 +2,16 @@
 
 function addLodge($data, $connection)
 {
-	$name = mysqli_real_escape_string($connection, $data['name'] ?? '');
-	$description = mysqli_real_escape_string($connection, $data['description'] ?? '');
-	$status = mysqli_real_escape_string($connection, $data['status'] ?? 'beschikbaar');
-	$visable = mysqli_real_escape_string($connection, $data['visible'] ?? 1);
-	$bedrooms = mysqli_real_escape_string($connection, $data['slaapkamers'] ?? 1);
-	$people = mysqli_real_escape_string($connection, $data['aantalPersonen'] ?? 2);
-	$price = mysqli_real_escape_string($connection, $data['priceRegular'] ?? '');
-	$price_winter = mysqli_real_escape_string($connection, $data['priceWinter'] ?? '');
-	$lodge_type_id = mysqli_real_escape_string($connection, $data['lodge_type_id'] ?? null);
-	$image = mysqli_real_escape_string($connection, $data['image'] ?? '');
+	$name =  $data['name'] ?? '';
+	$description =  $data['description'] ?? '';
+	$status =  $data['status'] ?? 'beschikbaar';
+	$visable =  $data['visible'] ?? 1;
+	$bedrooms =  $data['slaapkamers'] ?? 1;
+	$people =  $data['aantalPersonen'] ?? 2;
+	$price =  $data['priceRegular'] ?? '';
+	$price_winter =  $data['priceWinter'] ?? '';
+	$lodge_type_id =  $data['lodge_type_id'] ?? null;
+	$image =  $data['image'] ?? '';
 
 	if (empty($name)) {
 		echo json_encode(["success" => false, "message" => "Naam is verplicht"]);
