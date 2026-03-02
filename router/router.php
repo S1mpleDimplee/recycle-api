@@ -23,7 +23,7 @@ include_once '../functions/lodges/UpdateLodge.php';
 include_once '../functions/lodges/GetLodgeInfo.php';
 include_once '../functions/lodges/DeleteLodge.php';
 include_once '../functions/manager/getManagerDashboardInfo.php';
-include_once '../functions/receptionist.php';
+// include_once '../functions/receptionist.php';
 include_once '../functions/Schedules/manager.php';
 include_once '../functions/Schedules/bookings.php';
 include_once '../functions/Schedules/mechanic.php';
@@ -34,7 +34,7 @@ header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
-session_start();
+
 // Database connection
 $connection = mysqli_connect("jaylanovanderveen.nl", "jaylanovanderv_sparesortDB", "uYQ7pNDnxz4xvH2KjmBb", "jaylanovanderv_sparesortDB");
 if (!$connection) {

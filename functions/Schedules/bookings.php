@@ -3,14 +3,12 @@
 //get all bookings
 function GetAllBookings($conn)
 {
-    $sql = "SELECT * FROM booking";
-    $result = mysqli_query($conn, $sql);
+    $query = "SELECT b.*, u.name AS user_name, u.email AS user_email, l.name AS lodge_name, l.image AS lodge_image FROM booking b LEFT JOIN user u ON b.user_id = u.id LEFT JOIN lodge l ON b.lodge_id = l.id ORDER BY b.check_in DESC";
+
+    $result = mysqli_query($conn, $query);
 
     if (!$result) {
-        echo json_encode([
-            "success" => false,
-            "message" => "Fout bij het ophalen van afspraken: " . mysqli_error($conn)
-        ]);
+        echo json_encode(["success" => false, "message" => "Fout: " . mysqli_error($conn)]);
         return;
     }
 
@@ -19,10 +17,7 @@ function GetAllBookings($conn)
         $bookings[] = $row;
     }
 
-    echo json_encode([
-        "success" => true,
-        "data" => $bookings
-    ]);
+    echo json_encode(["success" => true, "data" => $bookings]);
 }
 // cancel customer booking
 function CancelBooking($data, $conn)
@@ -45,39 +40,29 @@ function CancelBooking($data, $conn)
     }
 }
 // create customer booking
-function CreateBooking($data, $conn)
+function CreateBooking($data, $connection)
 {
-    $id = $data['id'];
-    $userid = $data['user_id'];
-    $lodgeid = $data['lodge_id'];
-    $checkinDate = $data['checkinDate'];
-    $checkoutDate = $data['checkoutDate'];
-    $totalprice = $data['totalPrice'];
-    $status = $data['status'] ?? 'pending';
+    $userId = $data['user_id'] ?? '';
+    $lodgeId = $data['lodge_id'] ?? '';
+    $checkIn = $data['check_in'] ?? '';
+    $checkOut = $data['check_out'] ?? '';
 
-    $sql = "INSERT INTO booking ( id, userid, lodgeid, checkinDate, checkoutDate, totalprice, status) 
-            VALUES ('$id', '$userid', '$lodgeid', '$checkinDate', '$checkoutDate', '$totalprice', '$status')";
-
-
-    if ($id && $userid && $lodgeid && $checkinDate && $checkoutDate && $totalprice && $status) {
-    } else {
-        echo json_encode([
-            "success" => false,
-            "message" => "Vul alle velden in"
-        ]);
+    if (empty($userId) || empty($lodgeId) || empty($checkIn) || empty($checkOut)) {
+        echo json_encode(["success" => false, "message" => "Vul alle velden in"]);
         return;
     }
-    
-    if (mysqli_query($conn, $sql)) {
-        echo json_encode([
-            "success" => true,
-            "message" => "Afspraak succesvol aangemaakt",
-        ]);
-    } else {
-        echo json_encode([
-            "success" => false,
-            "message" => "Afspraak kon niet worden aangemaakt: " . mysqli_error($conn)
-        ]);
+
+    $check = mysqli_query($connection, "
+        SELECT id FROM booking 
+        WHERE lodge_id = '$lodgeId' 
+        AND status != 'geannuleerd'
+        AND check_in < '$checkOut' 
+        AND check_out > '$checkIn'
+    ");
+
+    if (mysqli_num_rows($check) > 0) {
+        echo json_encode(["success" => false, "message" => "Lodge is al geboekt in deze periode"]);
+        return;
     }
 }
 // change customer booking
