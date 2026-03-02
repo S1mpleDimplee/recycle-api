@@ -8,6 +8,7 @@ include_once '../functions/lodges/GetAllLodges.php';
 include_once '../functions/lodges/UpdateLodge.php';
 include_once '../functions/lodges/GetLodgeInfo.php';
 include_once '../functions/lodges/DeleteLodge.php';
+include_once '../functions/manager/getManagerDashboardInfo.php';
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Credentials: true");
@@ -78,6 +79,9 @@ switch ($function) {
         break;
     case 'deletelodge':
         DeleteLodge($data, $connection);
+        break;
+    case 'getmanagerdashboardinfo':
+        GetManagerDashboardInfo($connection);
         break;
     default:
         echo json_encode([
