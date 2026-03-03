@@ -101,6 +101,7 @@ switch ($function) {
         break;
     case 'getmanagerdashboardinfo':
         GetManagerDashboardInfo($connection);
+        break;
     case 'getallbookings':
         GetAllBookings($connection);
         break;

@@ -24,7 +24,7 @@ function CancelBooking($data, $conn)
 {
     $BookingID = $data['id'] ?? null;
 
-    $cancelBookingSQL = "DELETE FROM booking WHERE id='$BookingID'";
+    $cancelBookingSQL = "UPDATE booking SET status='geannuleerd' WHERE id='$BookingID'";
     if (mysqli_query($conn, $cancelBookingSQL)) {
         echo json_encode([
             "success" => true,
@@ -52,6 +52,7 @@ function CreateBooking($data, $connection)
         return;
     }
 
+    // Check if lodge already booked in this period
     $check = mysqli_query($connection, "
         SELECT id FROM booking 
         WHERE lodge_id = '$lodgeId' 
@@ -64,67 +65,80 @@ function CreateBooking($data, $connection)
         echo json_encode(["success" => false, "message" => "Lodge is al geboekt in deze periode"]);
         return;
     }
-}
-// change customer booking
-function ChangeBooking($data, $conn)
-{
-    $id = $data['id'];
-    $userid = $data['user_id'];
-    $lodgeid = $data['lodge_id'];
-    $checkinDate = $data['checkinDate'];
-    $checkoutDate = $data['checkoutDate'];
-    $totalprice = $data['totalPrice'];
-    $status = $data['status'] ?? 'geboekt';
 
-    $sql = "UPDATE booking SET userid='$userid', lodgeid='$lodgeid', checkinDate='$checkinDate', checkoutDate='$checkoutDate', totalprice='$totalprice', status='$status' WHERE id='$id'";
+    // Calculate price
+    $lodge = mysqli_fetch_assoc(mysqli_query($connection, "SELECT price, price_winter FROM lodge WHERE id = '$lodgeId'"));
+    $nights = (strtotime($checkOut) - strtotime($checkIn)) / 86400;
+    $month = (int) date('m', strtotime($checkIn));
+    $isWinter = in_array($month, [11, 12, 1, 2]);
+    $totalPrice = $nights * ($isWinter ? $lodge['price_winter'] : $lodge['price']);
 
-    if ($id && $userid && $lodgeid && $checkinDate && $checkoutDate && $totalprice && $status) {
-    } else {
-        echo json_encode([
-            "success" => false,
-            "message" => "Er is iets misgegaan bij het wijzigen van de afspraak, contacteer de beheerder astublieft"
-        ]);
-        return;
-    }
-
-    if (mysqli_query($conn, $sql)) {
-        echo json_encode([
-            "success" => true,
-            "message" => "Afspraak succesvol gewijzigd"
-        ]);
-    } else {
-        echo json_encode([
-            "success" => false,
-            "message" => "Fout bij het wijzigen van de afspraak: " . mysqli_error($conn)
-        ]);
-    }
-}
-// get customer bookings by user id
-function getBookingsByUserId($data, $conn)
-{
-    $userId = $data['user_id'] ?? null;
-
-    if (!$userId) {
-        echo json_encode([
-            "success" => false,
-            "message" => "User ID is required"
-        ]);
-        return;
-    }
-
-    $sql = "SELECT * FROM booking WHERE userid='$userId'";
-    $result = mysqli_query($conn, $sql);
+    $result = mysqli_query($connection, "
+        INSERT INTO booking (user_id, lodge_id, check_in, check_out, total_price, status)
+        VALUES ('$userId', '$lodgeId', '$checkIn', '$checkOut', '$totalPrice', 'bevestigd')
+    ");
 
     if (!$result) {
-        echo json_encode([
-            "success" => false,
-            "message" => mysqli_error($conn)
-        ]);
+        echo json_encode(["success" => false, "message" => "Fout bij aanmaken: " . mysqli_error($connection)]);
         return;
     }
 
     echo json_encode([
         "success" => true,
-        "data" => mysqli_fetch_all($result, MYSQLI_ASSOC)
+        "message" => "Boeking succesvol aangemaakt",
+        "data" => ["id" => mysqli_insert_id($connection), "total_price" => $totalPrice, "nights" => $nights]
     ]);
+}
+
+function ChangeBooking($data, $connection)
+{
+    $id = $data['id'] ?? '';
+    $checkIn = $data['check_in'] ?? '';
+    $checkOut = $data['check_out'] ?? '';
+    $status = $data['status'] ?? 'bevestigd';
+
+    if (empty($id) || empty($checkIn) || empty($checkOut)) {
+        echo json_encode(["success" => false, "message" => "Vul alle velden in"]);
+        return;
+    }
+
+    $result = mysqli_query($connection, "
+        UPDATE booking SET check_in='$checkIn', check_out='$checkOut', status='$status' WHERE id='$id'
+    ");
+
+    if (!$result) {
+        echo json_encode(["success" => false, "message" => "Fout bij wijzigen: " . mysqli_error($connection)]);
+        return;
+    }
+
+    echo json_encode(["success" => true, "message" => "Boeking succesvol gewijzigd"]);
+}
+
+function GetBookingsByUserId($data, $connection)
+{
+    $userId = $data['user_id'] ?? '';
+
+    if (empty($userId)) {
+        echo json_encode(["success" => false, "message" => "User ID is verplicht"]);
+        return;
+    }
+
+    $query = "
+        SELECT 
+            b.id, b.check_in, b.check_out, b.total_price, b.status,
+            l.name AS lodge_name, l.image AS lodge_image
+        FROM booking b
+        LEFT JOIN lodge l ON b.lodge_id = l.id
+        WHERE b.user_id = '$userId'
+        ORDER BY b.check_in DESC
+    ";
+
+    $result = mysqli_query($connection, $query);
+
+    $bookings = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $bookings[] = $row;
+    }
+
+    echo json_encode(["success" => true, "data" => $bookings]);
 }
