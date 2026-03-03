@@ -2,7 +2,7 @@
 
 function GetLodgeInfo($data, $connection)
 {
-   $id = mysqli_real_escape_string($connection, $data['id'] ?? '');
+   $id = $data['id'] ?? '';
 
    $query = "SELECT * FROM lodge WHERE id = '$id'";
    $result = mysqli_query($connection, $query);
