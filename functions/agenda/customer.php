@@ -2,10 +2,13 @@
 
 function getBookingByCustomer($customerId, $connection)
 {
-    $query = "SELECT b.id, b.start_date, b.end_date, l.name AS lodge_name
+    $query = "SELECT b.id, b.user_id, b.lodge_id, b.check_in, b.check_out, b.total_price, b.status, b.check_in_time, b.check_out_time, 
+                     l.name AS lodge_name,
+                     u.name AS customer_name
               FROM booking b
-              JOIN lodge l ON b.lodge_id = l.id
-              WHERE b.customer_id = '$customerId'";
+              join lodge l ON b.lodge_id = l.id
+              join user u ON b.user_id = u.id
+              WHERE b.user_id = '$customerId'";
 
     $result = mysqli_query($connection, $query);
 
