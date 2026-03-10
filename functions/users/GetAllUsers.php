@@ -1,7 +1,7 @@
 <?php
 
 function GetAllUsers($conn) {
-    $sql = "SELECT * FROM user";
+    $sql = "SELECT id,name,email,email_verified,role,created_at FROM user";
     $result = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($result) > 0) {
