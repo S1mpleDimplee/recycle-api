@@ -46,8 +46,7 @@ function GetManagerDashboardInfo($connection)
         $monthlyBookings[] = [
             "label" => $monthLabels[$i - 1] . " " . date('Y'),
             "value" => (int) ($monthlyRaw[$i] ?? 0),
-            "color" => "#3b82f6"
-        ];
+                ];
     }
 
     // Latest 3 bookings
