@@ -134,9 +134,6 @@ switch ($function) {
     case "getcleaningschedule":
         GetCleaningSchedule($connection);
         break;
-    case "getbookingbycustomer":
-        GetBookingByCustomer($data, $connection);
-        break;
     default:
         echo json_encode([
             "success" => false,
