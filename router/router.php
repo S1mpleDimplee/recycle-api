@@ -28,7 +28,6 @@ include_once '../functions/Schedules/manager.php';
 include_once '../functions/Schedules/bookings.php';
 include_once '../functions/Schedules/mechanic.php';
 include_once '../functions/Schedules/receptionist.php';
-include_once '../functions/agenda/customer.php';
 include_once '../functions/mail/confirmEmailAddress.php';
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
