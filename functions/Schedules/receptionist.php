@@ -1,4 +1,4 @@
-<?php 
+<?php
 //receptionist functions
 // get all available lodges for receptionist
 function GetAvailableLodges($data, $conn)
@@ -28,18 +28,35 @@ function GetAvailableLodges($data, $conn)
 
     echo json_encode([
         "success" => true,
-        "data" => $lodges   ]); 
+        "data" => $lodges
+    ]);
 }
 // cleaning schedule
-function GetCleaningSchedule($conn)
+function GetCleaningSchedule($data, $conn)
 {
-    $sql = "SELECT * FROM cleaning_schedule";
+    // 1. Get the week and year sent from React
+    $week = $data['week'];
+    $year = $data['year'];
+
+    // 2. Calculate the Start (Monday) and End (Friday) of that specific week
+    $dto = new DateTime();
+    $dto->setISODate($year, $week);
+    $startDate = $dto->format('Y-m-d'); // Monday
+    $dto->modify('+4 days');
+    $endDate = $dto->format('Y-m-d');   // Friday
+
+    // 3. SQL query with JOIN to get lodge names
+    $sql = "SELECT cs.*, l.name as lodge_name 
+            FROM cleaning_schedule cs
+            JOIN lodge l ON cs.lodge_id = l.lodgeid
+            WHERE cs.cleaning_date BETWEEN '$startDate' AND '$endDate'";
+
     $result = mysqli_query($conn, $sql);
 
     if (!$result) {
         echo json_encode([
             "success" => false,
-            "message" => "Fout bij het ophalen van het schoonmaakschema: " . mysqli_error($conn)
+            "message" => "SQL Error: " . mysqli_error($conn)
         ]);
         return;
     }
