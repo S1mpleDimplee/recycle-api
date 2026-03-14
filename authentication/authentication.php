@@ -111,7 +111,7 @@ function checkLogin($data, $conn)
     $result = mysqli_stmt_get_result($stmt);
     $user = mysqli_fetch_assoc($result);
 
-    if ($user && password_verify($password, $user['password'])) {
+    if ($user && password_verify($password, $user['password']) && $user['email_verified'] == 1) {
         echo json_encode([
             "success" => true,
             "message" => "Login successful",

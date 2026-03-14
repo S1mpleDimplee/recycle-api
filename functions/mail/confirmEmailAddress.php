@@ -13,8 +13,8 @@ function SendVerificationEmail($data, $conn)
         $name = $data['name'] ?? '';
         $verificationcode = $data['verificationcode'] ?? '';
         $subject = 'Welkom bij sparesort';
-        $from = " sparesortbali@jaylanovanderveen.nl";
-        $password = "school123!@#";
+        $from = "school@rubenkraan.nl";
+        $password = "school123.!";
 
         // Sla verificatiecode op voor bevestiging via link (kolom verification_code toevoegen: ALTER TABLE user ADD verification_code VARCHAR(10) DEFAULT NULL;)
         if ($conn && $to && $verificationcode) {
@@ -40,7 +40,7 @@ function SendVerificationEmail($data, $conn)
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->SMTPDebug = 0;
         $mail->SMTPAuth = true;
-        $mail->Host = 'smtp.jaylanovanderveen.nl';
+        $mail->Host = 'smtp.rubenkraan.nl';
         $mail->Port = 587;
 
         $mail->Username = $from;
