@@ -27,7 +27,6 @@ function getAllUsers($conn)
 
     echo json_encode([
         'success' => true,
-        'data' => mysqli_fetch_all($result, mysqli_ASSOC)
     ]);
 }
 

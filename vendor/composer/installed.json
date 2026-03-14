@@ -155,7 +155,7 @@
             },
             "time": "2023-05-03T06:19:36+00:00",
             "type": "library",
-            "installation-source": "source",
+            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "Mpdf\\PsrLogAwareTrait\\": "src/"
@@ -464,7 +464,7 @@
                     "dev-master": "3.x-dev"
                 }
             },
-            "installation-source": "source",
+            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "Psr\\Log\\": "src"
