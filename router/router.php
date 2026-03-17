@@ -90,6 +90,9 @@ switch ($function) {
     case 'getuserdata':
         GetUserData($data, $connection);
         break;
+    case 'updatebookingdates':
+        UpdateBookingDates($data, $connection);
+        break;
     case 'deleteuser':
         DeleteUser($data, $connection);
         break;
