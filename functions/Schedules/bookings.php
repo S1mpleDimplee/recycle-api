@@ -75,7 +75,7 @@ function CreateBooking($data, $connection)
 
   $result = mysqli_query($connection, "
         INSERT INTO booking (user_id, lodge_id, check_in, check_out, total_price, status)
-        VALUES ('$userId', '$lodgeId', '$checkIn', '$checkOut', '$totalPrice', 'bevestigd')
+        VALUES ('$userId', '$lodgeId', '$checkIn', '$checkOut', '$totalPrice', 'gepland')
     ");
 
   if (!$result) {

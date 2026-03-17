@@ -21,8 +21,10 @@ include_once '../functions/lodges/AddLodge.php';
 include_once '../functions/lodges/GetAllLodges.php';
 include_once '../functions/lodges/UpdateLodge.php';
 include_once '../functions/lodges/GetLodgeInfo.php';
+include_once '../functions/lodges/GetLodgeTypes.php';
 include_once '../functions/lodges/DeleteLodge.php';
 include_once '../functions/manager/getManagerDashboardInfo.php';
+include_once '../functions/Schedules/checkin.php';
 // include_once '../functions/receptionist.php';
 include_once '../functions/Schedules/manager.php';
 include_once '../functions/Schedules/bookings.php';
@@ -79,8 +81,17 @@ switch ($function) {
     case 'getallusers':
         GetAllUsers($connection);
         break;
+    case 'checkinbooking':
+    CheckInBooking($data, $connection);
+        break;
+    case 'checkoutbooking':
+    CheckOutBooking($data, $connection);
+        break;
     case 'getuserdata':
         GetUserData($data, $connection);
+        break;
+    case 'updatebookingdates':
+        UpdateBookingDates($data, $connection);
         break;
     case 'deleteuser':
         DeleteUser($data, $connection);
@@ -106,13 +117,15 @@ switch ($function) {
     case 'getallbookings':
         GetAllBookings($connection);
         break;
+    case 'getlodgetypes':
+        GetLodgeTypes($connection);
+        break;
     case 'updatebookingstatus':
         UpdateBookingStatus($data, $connection);
         break;
     case 'getbookingbyid':
         GetBookingById($data, $connection);
         break;
-        
     case 'cancelbooking':
         CancelBooking($data, $connection);
         break;
