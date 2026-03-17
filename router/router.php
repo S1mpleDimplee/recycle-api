@@ -24,6 +24,7 @@ include_once '../functions/lodges/GetLodgeInfo.php';
 include_once '../functions/lodges/GetLodgeTypes.php';
 include_once '../functions/lodges/DeleteLodge.php';
 include_once '../functions/manager/getManagerDashboardInfo.php';
+include_once '../functions/Schedules/checkin.php';
 // include_once '../functions/receptionist.php';
 include_once '../functions/Schedules/manager.php';
 include_once '../functions/Schedules/bookings.php';
@@ -79,6 +80,12 @@ switch ($function) {
         break;
     case 'getallusers':
         GetAllUsers($connection);
+        break;
+    case 'checkinbooking':
+    CheckInBooking($data, $connection);
+        break;
+    case 'checkoutbooking':
+    CheckOutBooking($data, $connection);
         break;
     case 'getuserdata':
         GetUserData($data, $connection);
