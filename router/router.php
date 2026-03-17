@@ -120,6 +120,12 @@ switch ($function) {
     case 'getlodgetypes':
         GetLodgeTypes($connection);
         break;
+    case 'updatebookingstatus':
+        UpdateBookingStatus($data, $connection);
+        break;
+    case 'getbookingbyid':
+        GetBookingById($data, $connection);
+        break;
     case 'cancelbooking':
         CancelBooking($data, $connection);
         break;
