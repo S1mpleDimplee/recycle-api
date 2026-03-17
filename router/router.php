@@ -21,6 +21,7 @@ include_once '../functions/lodges/AddLodge.php';
 include_once '../functions/lodges/GetAllLodges.php';
 include_once '../functions/lodges/UpdateLodge.php';
 include_once '../functions/lodges/GetLodgeInfo.php';
+include_once '../functions/lodges/GetLodgeTypes.php';
 include_once '../functions/lodges/DeleteLodge.php';
 include_once '../functions/manager/getManagerDashboardInfo.php';
 // include_once '../functions/receptionist.php';
@@ -105,6 +106,9 @@ switch ($function) {
         break;
     case 'getallbookings':
         GetAllBookings($connection);
+        break;
+    case 'getlodgetypes':
+        GetLodgeTypes($connection);
         break;
     case 'cancelbooking':
         CancelBooking($data, $connection);
