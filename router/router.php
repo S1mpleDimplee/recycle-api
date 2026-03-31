@@ -12,26 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 session_start();
 
-include_once '../authentication/authentication.php';
-include_once '../functions/users/GetAllUsers.php';
-include_once '../functions/users/GetUserData.php';
-include_once '../functions/users/UpdateUserData.php';
-include_once '../functions/users/DeleteUser.php';
-include_once '../functions/lodges/AddLodge.php';
-include_once '../functions/lodges/GetAllLodges.php';
-include_once '../functions/lodges/UpdateLodge.php';
-include_once '../functions/lodges/GetLodgeInfo.php';
-include_once '../functions/lodges/GetLodgeTypes.php';
-include_once '../functions/lodges/DeleteLodge.php';
-include_once '../functions/manager/getManagerDashboardInfo.php';
-include_once '../functions/Schedules/checkin.php';
-// include_once '../functions/receptionist.php';
-include_once '../functions/Schedules/manager.php';
-include_once '../functions/Schedules/bookings.php';
-include_once '../functions/Schedules/mechanic.php';
-include_once '../functions/Schedules/receptionist.php';
-include_once '../functions/mail/confirmEmailAddress.php';
-
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
@@ -63,95 +43,8 @@ $data = $request['data'] ?? [];
 // Uses the function name to use the given function
 switch ($function) {
     // User / auth
-    case 'adduser':
-        addUser($data, $connection);
-        break;
     case 'loginuser':
         checkLogin($data, $connection);
-        break;
-    case 'getalllodges':
-        GetAllLodges($connection);
-        break;
-    case 'sendverificationmail':
-        SendVerificationEmail($data, $connection);
-        break;
-    case 'confirmemailwithlink':
-        confirmEmailWithLink($data, $connection);
-        break;
-    case 'getallusers':
-        GetAllUsers($connection);
-        break;
-    case 'checkinbooking':
-    CheckInBooking($data, $connection);
-        break;
-    case 'checkoutbooking':
-    CheckOutBooking($data, $connection);
-        break;
-    case 'getuserdata':
-        GetUserData($data, $connection);
-        break;
-    case 'updatebookingdates':
-        UpdateBookingDates($data, $connection);
-        break;
-    case 'deleteuser':
-        DeleteUser($data, $connection);
-        break;
-    case 'updateuserdata':
-        UpdateUserData($data, $connection);
-        break;
-    case 'addlodge':
-        addLodge($data, $connection);
-        break;
-    case 'updatelodge':
-        UpdateLodge($data, $connection);
-        break;
-    case 'getlodgeinfo':
-        GetLodgeInfo($data, $connection);
-        break;
-    case 'deletelodge':
-        DeleteLodge($data, $connection);
-        break;
-    case 'getmanagerdashboardinfo':
-        GetManagerDashboardInfo($connection);
-        break;
-    case 'getallbookings':
-        GetAllBookings($connection);
-        break;
-    case 'getlodgetypes':
-        GetLodgeTypes($connection);
-        break;
-    case 'updatebookingstatus':
-        UpdateBookingStatus($data, $connection);
-        break;
-    case 'getbookingbyid':
-        GetBookingById($data, $connection);
-        break;
-    case 'cancelbooking':
-        CancelBooking($data, $connection);
-        break;
-    case 'createbooking':
-        CreateBooking($data, $connection);
-        break;
-    case 'changebooking':
-        ChangeBooking($data, $connection);
-        break;
-    case "getbookingsbyuserid":
-        GetBookingsByUserId($data, $connection);
-        break;
-    case "getallrepairs":
-        GetAllRepairs($connection);
-        break;
-    case "updaterepairmaintenance":
-        UpdateRepairMaintenance($data, $connection);
-        break;
-    case "updaterepairavailable":
-        UpdateRepairAvailable($data, $connection);
-        break;
-    case "getavailablelodges":
-        GetAvailableLodges($data, $connection);
-        break;
-    case "getcleaningschedule":
-        GetCleaningSchedule($connection);
         break;
     default:
         echo json_encode([
