@@ -1,4 +1,5 @@
 <?php
+
 include_once '../functions/mail/isEmailRegistered.php';
 
 function isPasswordStrong($password, &$message)
@@ -128,4 +129,4 @@ function checkLogin($data, $conn)
         ]);
     }
 }
-?>  ee
+?>  
