@@ -128,4 +128,4 @@ function checkLogin($data, $conn)
         ]);
     }
 }
-?>  
+?>  ee
