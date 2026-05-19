@@ -23,7 +23,7 @@ function isPasswordStrong($password, &$message)
     return true;
 }
 
-function addUser($data, $conn)
+function registerUser($data, $conn)
 {
     $email = $data['email'] ?? null;
     $phonenumber = $data['phonenumber'] ?? null;

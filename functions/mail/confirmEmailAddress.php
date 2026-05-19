@@ -12,11 +12,10 @@ function SendVerificationEmail($data, $conn)
         $to = $data['email'] ?? '';
         $name = $data['name'] ?? '';
         $verificationcode = $data['verificationcode'] ?? '';
-        $subject = 'Welkom bij sparesort';
+        $subject = 'Welkom bij Recycle';
         $from = "school@rubenkraan.nl";
         $password = "school123.!";
 
-        // Sla verificatiecode op voor bevestiging via link (kolom verification_code toevoegen: ALTER TABLE user ADD verification_code VARCHAR(10) DEFAULT NULL;)
         if ($conn && $to && $verificationcode) {
             $stmt = mysqli_prepare($conn, "UPDATE user SET verification_code = ? WHERE email = ?");
             if ($stmt) {
@@ -28,13 +27,14 @@ function SendVerificationEmail($data, $conn)
 
         $mail = new PHPMailer(true);
         $mail->CharSet = 'UTF-8';
-    
-        $body = 
+
+        $body =
         "Beste " . $name . ",\n\n" .
-        "Bedankt voor uw registratie bij sparesort.\n"
-        . "Klik op de volgende link om uw email adres te bevestigen:\n\n" .
-        "http://localhost:3000/verificatie?verificationcode=" . $verificationcode . "&email=" . urlencode($to) . "\n\n" .
-        "Met vriendelijke groet,\n";
+        "Bedankt voor uw registratie bij Recycle.\n" .
+        "Klik op de volgende link om uw email adres te bevestigen:\n\n" .
+        "http://localhost:5173/verificatie?verificationcode=" . $verificationcode . "&email=" . urlencode($to) . "\n\n" .
+        "Met vriendelijke groet,\n" .
+        "Het Recycle team";
 
         $mail->IsSMTP();
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
@@ -46,7 +46,7 @@ function SendVerificationEmail($data, $conn)
         $mail->Username = $from;
         $mail->Password = $password;
 
-        $mail->setFrom($from, 'sparesort');
+        $mail->setFrom($from, 'Recycle');
         $mail->addAddress($to, $name);
         $mail->Subject = $subject;
         $mail->Body = $body;
