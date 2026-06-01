@@ -5,7 +5,10 @@ function AddProduct($data, $conn)
     $userId       = $data['userid']               ?? '';
     $name         = $data['product_name']         ?? '';
     $price        = $data['product_price']        ?? '';
-    $img          = $data['product_img']          ?? '';
+    $rawImg       = $data['product_img']          ?? '';
+    $img          = !empty($rawImg)
+        ? base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $rawImg))
+        : null;
     $description  = $data['product_description']  ?? '';
     $availability = $data['product_availability'] ?? 'available';
     $rawDeadline  = $data['bid_deadline']  ?? null;
