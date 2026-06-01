@@ -13,7 +13,7 @@ function GetUserBids($data, $conn)
     $stmt = mysqli_prepare($conn,
         "SELECT b.id, b.amount, b.status, b.created_at,
                 p.id AS product_id, p.product_name, p.product_price,
-                p.product_img, p.product_availability,
+                p.product_availability,
                 u.name AS seller_name
          FROM bids b
          INNER JOIN products p  ON p.id = b.product_id

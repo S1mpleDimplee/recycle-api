@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowedOrigins)) {
@@ -23,26 +23,42 @@ if (!in_array(mime_content_type($_FILES['file']['tmp_name']), $allowed)) {
     exit();
 }
 
-$uploadDir = __DIR__ . '/../uploads/profiles/';
-if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-
-$ext      = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-$filename = $userId . '_' . time() . '.' . $ext;
-
-if (!move_uploaded_file($_FILES['file']['tmp_name'], $uploadDir . $filename)) {
+$imageData = file_get_contents($_FILES['file']['tmp_name']);
+if ($imageData === false) {
     echo json_encode(["success" => false, "message" => "Uploaden mislukt"]);
     exit();
 }
 
-$conn = mysqli_connect("jaylanovanderveen.nl", "jaylanovanderv_recycle", "hawktuah", "jaylanovanderv_recycle");
-if ($conn) {
-    $imgPath = 'uploads/profiles/' . $filename;
-    $stmt    = mysqli_prepare($conn, "UPDATE users SET profile_img = ? WHERE id = ?");
-    mysqli_stmt_bind_param($stmt, 'si', $imgPath, $userId);
-    mysqli_stmt_execute($stmt);
+$envPath = __DIR__ . '/../.env';
+if (file_exists($envPath)) {
+    foreach (file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        if (str_starts_with(trim($line), '#')) continue;
+        [$key, $val] = explode('=', $line, 2);
+        $_ENV[trim($key)] = trim($val);
+    }
 }
+
+$conn = mysqli_connect(
+    $_ENV['DB_HOST'] ?? '',
+    $_ENV['DB_USER'] ?? '',
+    $_ENV['DB_PASS'] ?? '',
+    $_ENV['DB_NAME'] ?? ''
+);
+if (!$conn) {
+    echo json_encode(["success" => false, "message" => "Database verbinding mislukt"]);
+    exit();
+}
+
+$stmt = mysqli_prepare($conn, "UPDATE users SET profile_img = ? WHERE id = ?");
+mysqli_stmt_bind_param($stmt, 'si', $imageData, $userId);
+if (!mysqli_stmt_execute($stmt)) {
+    echo json_encode(["success" => false, "message" => "Opslaan mislukt"]);
+    exit();
+}
+
+$serveUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/phpopdrachten/derde_jaar/recycle-api/serve_profile.php?id=' . $userId;
 
 echo json_encode([
     "success" => true,
-    "url"     => "http://localhost/recycle-api/uploads/profiles/" . $filename,
+    "url"     => $serveUrl,
 ]);

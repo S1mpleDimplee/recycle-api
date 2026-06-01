@@ -74,7 +74,7 @@ function GetUserDashboard($data, $conn)
     // 5 most recent purchases
     $recentBuyStmt = mysqli_prepare($conn,
         "SELECT pur.id, pur.amount_paid, pur.created_at,
-                p.product_name, p.product_img,
+                p.product_name,
                 seller.name AS seller_name
          FROM purchases pur
          INNER JOIN products p    ON p.id    = pur.product_id

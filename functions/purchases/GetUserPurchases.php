@@ -14,7 +14,7 @@ function GetUserPurchases($data, $conn)
         "SELECT
             pur.id, pur.amount_paid, pur.created_at,
             p.id   AS product_id,
-            p.product_name, p.product_img, p.product_description,
+            p.product_name, p.product_description,
             seller.id   AS seller_id,
             seller.name AS seller_name,
             seller.username AS seller_username
