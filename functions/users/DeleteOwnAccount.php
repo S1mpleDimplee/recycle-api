@@ -20,6 +20,17 @@ function DeleteOwnAccount($data, $conn)
         return;
     }
 
+    // Block deletion when user still has active listings
+    $activeProd = mysqli_prepare($conn,
+        "SELECT COUNT(*) AS cnt FROM products WHERE user_id = ? AND product_availability = 'available'");
+    mysqli_stmt_bind_param($activeProd, 'i', $userId);
+    mysqli_stmt_execute($activeProd);
+    $cnt = mysqli_fetch_assoc(mysqli_stmt_get_result($activeProd))['cnt'];
+    if ($cnt > 0) {
+        echo json_encode(["success" => false, "message" => "Deactiveer eerst al je actieve artikelen ({$cnt}) voordat je je account verwijdert"]);
+        return;
+    }
+
     $cancelBids = mysqli_prepare($conn,
         "UPDATE bids SET status = 'cancelled' WHERE bidder_id = ? AND status = 'pending'");
     mysqli_stmt_bind_param($cancelBids, 'i', $userId);

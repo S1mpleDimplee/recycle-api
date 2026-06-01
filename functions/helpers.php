@@ -10,6 +10,99 @@ function serveBase($script)
     return $host . '/recycle-api/' . $script . '?id=';
 }
 
+function serveImageUrl($productId, $pos = 1)
+{
+    $host     = 'http://' . $_SERVER['HTTP_HOST'];
+    $longPath = '/phpopdrachten/derde_jaar/recycle-api/serve_image.php';
+    $base     = file_exists($_SERVER['DOCUMENT_ROOT'] . $longPath)
+        ? $host . $longPath
+        : $host . '/recycle-api/serve_image.php';
+    return $base . '?id=' . (int)$productId . '&pos=' . (int)$pos;
+}
+
+function getProductImages($productId, $conn)
+{
+    $stmt = mysqli_prepare($conn,
+        "SELECT position FROM product_images WHERE product_id = ? ORDER BY position ASC");
+    mysqli_stmt_bind_param($stmt, 'i', $productId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    $urls = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $urls[] = serveImageUrl($productId, $row['position']);
+    }
+
+    if (empty($urls)) {
+        // Fallback: check legacy product_img
+        $chk = mysqli_prepare($conn,
+            "SELECT (product_img IS NOT NULL AND LENGTH(product_img) > 0) AS has_img FROM products WHERE id = ?");
+        mysqli_stmt_bind_param($chk, 'i', $productId);
+        mysqli_stmt_execute($chk);
+        $row = mysqli_fetch_assoc(mysqli_stmt_get_result($chk));
+        if ($row && $row['has_img']) {
+            $urls[] = serveImageUrl($productId, 1);
+        }
+    }
+
+    return $urls;
+}
+
+function tryFinalizeAuction($productId, $conn)
+{
+    $stmt = mysqli_prepare($conn,
+        "SELECT user_id, listing_type, bid_deadline, product_availability FROM products WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, 'i', $productId);
+    mysqli_stmt_execute($stmt);
+    $product = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+
+    if (!$product
+        || $product['listing_type'] !== 'bid'
+        || $product['product_availability'] !== 'available'
+        || empty($product['bid_deadline'])
+        || strtotime($product['bid_deadline']) > time()
+    ) return false;
+
+    // Find highest pending bid
+    $bidStmt = mysqli_prepare($conn,
+        "SELECT id, bidder_id, amount FROM bids
+         WHERE product_id = ? AND status = 'pending'
+         ORDER BY amount DESC LIMIT 1");
+    mysqli_stmt_bind_param($bidStmt, 'i', $productId);
+    mysqli_stmt_execute($bidStmt);
+    $topBid = mysqli_fetch_assoc(mysqli_stmt_get_result($bidStmt));
+
+    if (!$topBid) return false;
+
+    $bidId   = $topBid['id'];
+    $buyerId = $topBid['bidder_id'];
+    $amount  = (int)$topBid['amount'];
+    $sellerId = (int)$product['user_id'];
+
+    $transfer = transferCredits($buyerId, $sellerId, $amount, $conn);
+    if (!$transfer['ok']) return false;
+
+    $q1 = mysqli_prepare($conn, "UPDATE bids SET status = 'accepted' WHERE id = ?");
+    mysqli_stmt_bind_param($q1, 'i', $bidId);
+    mysqli_stmt_execute($q1);
+
+    $q2 = mysqli_prepare($conn,
+        "UPDATE bids SET status = 'rejected' WHERE product_id = ? AND id != ? AND status = 'pending'");
+    mysqli_stmt_bind_param($q2, 'ii', $productId, $bidId);
+    mysqli_stmt_execute($q2);
+
+    $q3 = mysqli_prepare($conn, "UPDATE products SET product_availability = 'sold' WHERE id = ?");
+    mysqli_stmt_bind_param($q3, 'i', $productId);
+    mysqli_stmt_execute($q3);
+
+    $q4 = mysqli_prepare($conn,
+        "INSERT INTO purchases (bid_id, product_id, buyer_id, seller_id, amount_paid) VALUES (?,?,?,?,?)");
+    mysqli_stmt_bind_param($q4, 'iiiii', $bidId, $productId, $buyerId, $sellerId, $amount);
+    mysqli_stmt_execute($q4);
+
+    return true;
+}
+
 function isAdmin($userId, $conn)
 {
     $stmt = mysqli_prepare($conn, "SELECT role FROM users WHERE id = ?");

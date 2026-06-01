@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 function PlaceBid($data, $conn)
 {
@@ -16,12 +16,15 @@ function PlaceBid($data, $conn)
         return;
     }
 
-    // Check product exists, is available, and doesn't belong to the bidder
-    $prodStmt = mysqli_prepare($conn, "SELECT user_id, product_availability, bid_deadline, listing_type FROM products p WHERE id = ?");
+    // Auto-finalize if deadline already passed
+    tryFinalizeAuction($productId, $conn);
+
+    // Load product
+    $prodStmt = mysqli_prepare($conn,
+        "SELECT user_id, product_availability, bid_deadline, listing_type FROM products WHERE id = ?");
     mysqli_stmt_bind_param($prodStmt, 'i', $productId);
     mysqli_stmt_execute($prodStmt);
-    $prodResult = mysqli_stmt_get_result($prodStmt);
-    $product = mysqli_fetch_assoc($prodResult);
+    $product = mysqli_fetch_assoc(mysqli_stmt_get_result($prodStmt));
 
     if (!$product) {
         echo json_encode(["success" => false, "message" => "Artikel niet gevonden"]);
@@ -44,27 +47,37 @@ function PlaceBid($data, $conn)
         return;
     }
 
+    // Check buyer has at least 1 Recy
     $creditId = ensureCreditRecord($bidderId, $conn);
     $balStmt  = mysqli_prepare($conn, "SELECT amount FROM credits WHERE id = ?");
     mysqli_stmt_bind_param($balStmt, 'i', $creditId);
     mysqli_stmt_execute($balStmt);
     $balRow = mysqli_fetch_assoc(mysqli_stmt_get_result($balStmt));
-    if (!$balRow || (int)$balRow['amount'] <= 0) {
-        echo json_encode(["success" => false, "message" => "Je hebt onvoldoende Recy's om te bieden"]);
+    if (!$balRow || (int)$balRow['amount'] < (int)$amount) {
+        echo json_encode(["success" => false, "message" => "Je hebt onvoldoende Recy's om dit bod te plaatsen"]);
         return;
     }
 
+    // Get current highest bid on this product
+    $highStmt = mysqli_prepare($conn,
+        "SELECT MAX(amount) AS max_bid FROM bids WHERE product_id = ? AND status = 'pending'");
+    mysqli_stmt_bind_param($highStmt, 'i', $productId);
+    mysqli_stmt_execute($highStmt);
+    $highRow = mysqli_fetch_assoc(mysqli_stmt_get_result($highStmt));
+    $currentHighest = (int)($highRow['max_bid'] ?? 0);
 
-    $dupStmt = mysqli_prepare($conn,
-        "SELECT id FROM bids WHERE product_id = ? AND bidder_id = ? AND status = 'pending'");
-    mysqli_stmt_bind_param($dupStmt, 'ii', $productId, $bidderId);
-    mysqli_stmt_execute($dupStmt);
-    $dupResult = mysqli_stmt_get_result($dupStmt);
-    if (mysqli_fetch_assoc($dupResult)) {
-        echo json_encode(["success" => false, "message" => "Je hebt al een openstaand bod op dit artikel. Annuleer het eerst om opnieuw te bieden."]);
+    if ((int)$amount <= $currentHighest) {
+        echo json_encode(["success" => false, "message" => "Je bod moet hoger zijn dan het huidige hoogste bod ({$currentHighest} Recy's)"]);
         return;
     }
 
+    // Cancel user's existing pending bid on this product (they are outbidding themselves or updating)
+    $cancel = mysqli_prepare($conn,
+        "UPDATE bids SET status = 'cancelled' WHERE product_id = ? AND bidder_id = ? AND status = 'pending'");
+    mysqli_stmt_bind_param($cancel, 'ii', $productId, $bidderId);
+    mysqli_stmt_execute($cancel);
+
+    // Place new bid
     $stmt = mysqli_prepare($conn,
         "INSERT INTO bids (product_id, bidder_id, amount) VALUES (?, ?, ?)");
     mysqli_stmt_bind_param($stmt, 'iii', $productId, $bidderId, $amount);
@@ -78,6 +91,9 @@ function PlaceBid($data, $conn)
     echo json_encode([
         "success" => true,
         "message" => "Bod succesvol geplaatst",
-        "data"    => ["bid_id" => mysqli_insert_id($conn)]
+        "data"    => [
+            "bid_id"          => mysqli_insert_id($conn),
+            "highest_bid"     => (int)$amount,
+        ]
     ]);
 }

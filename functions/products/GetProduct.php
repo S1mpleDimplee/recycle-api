@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 function GetProduct($data, $conn)
 {
@@ -12,14 +12,13 @@ function GetProduct($data, $conn)
     $stmt = mysqli_prepare($conn,
         "SELECT p.id, p.user_id, p.product_name, p.product_price, p.product_description,
                 p.product_availability, p.listing_type, p.bid_deadline, p.created_at,
-                u.name AS seller_name, u.username AS seller_username,
-                (p.product_img IS NOT NULL AND LENGTH(p.product_img) > 0) AS has_img
+                u.name AS seller_name, u.username AS seller_username
          FROM products p
          LEFT JOIN users u ON u.id = p.user_id
          WHERE p.id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $id);
     mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+    $result  = mysqli_stmt_get_result($stmt);
     $product = mysqli_fetch_assoc($result);
 
     if (!$product) {
@@ -27,9 +26,9 @@ function GetProduct($data, $conn)
         return;
     }
 
-    $base = serveBase('serve_image.php');
-    $product['product_img'] = $product['has_img'] ? $base . $product['id'] : null;
-    unset($product['has_img']);
+    $images              = getProductImages($product['id'], $conn);
+    $product['images']   = $images;
+    $product['product_img'] = $images[0] ?? null; // backward compat
 
     echo json_encode(["success" => true, "data" => $product]);
 }

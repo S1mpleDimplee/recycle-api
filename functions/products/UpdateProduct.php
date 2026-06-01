@@ -6,7 +6,6 @@ function UpdateProduct($data, $conn)
     $requesterId  = $data['userid']               ?? '';
     $name         = $data['product_name']         ?? '';
     $price        = $data['product_price']        ?? '';
-    $img          = $data['product_img']          ?? '';
     $description  = $data['product_description']  ?? '';
     $availability = $data['product_availability'] ?? 'available';
     $listingType  = $data['listing_type']         ?? '';
@@ -21,7 +20,7 @@ function UpdateProduct($data, $conn)
     mysqli_stmt_bind_param($check, 'i', $id);
     mysqli_stmt_execute($check);
     $checkResult = mysqli_stmt_get_result($check);
-    $product = mysqli_fetch_assoc($checkResult);
+    $product     = mysqli_fetch_assoc($checkResult);
 
     if (!$product) {
         echo json_encode(["success" => false, "message" => "Artikel niet gevonden"]);
@@ -33,20 +32,49 @@ function UpdateProduct($data, $conn)
         return;
     }
 
-    if (!empty($img)) {
-        $imgBytes = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $img));
+    // ── images ────────────────────────────────────────────────────────────────
+    $rawImages = [];
+    if (!empty($data['product_images']) && is_array($data['product_images'])) {
+        $rawImages = array_slice($data['product_images'], 0, 4);
+    } elseif (!empty($data['product_img'])) {
+        $rawImages = [$data['product_img']];
+    }
+
+    $newImgBytes = null; // for legacy product_img column
+
+    if (!empty($rawImages)) {
+        // Replace all images
+        $del = mysqli_prepare($conn, "DELETE FROM product_images WHERE product_id = ?");
+        mysqli_stmt_bind_param($del, 'i', $id);
+        mysqli_stmt_execute($del);
+
+        foreach ($rawImages as $index => $rawImg) {
+            if (empty($rawImg)) continue;
+            $imgBytes = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $rawImg));
+            if (empty($imgBytes)) continue;
+            $pos     = $index + 1;
+            $imgStmt = mysqli_prepare($conn,
+                "INSERT INTO product_images (product_id, image_data, position) VALUES (?, ?, ?)");
+            mysqli_stmt_bind_param($imgStmt, 'isi', $id, $imgBytes, $pos);
+            mysqli_stmt_execute($imgStmt);
+            if ($index === 0) $newImgBytes = $imgBytes;
+        }
+    }
+
+    // ── update products row ───────────────────────────────────────────────────
+    if ($newImgBytes !== null) {
         $stmt = mysqli_prepare($conn,
             "UPDATE products SET product_name=?, product_price=?, product_img=?, product_description=?, product_availability=?, listing_type=?, bid_deadline=? WHERE id=?");
-        mysqli_stmt_bind_param($stmt, 'sssssssi', $name, $price, $imgBytes, $description, $availability, $listingType, $bidDeadline, $id);
+        mysqli_stmt_bind_param($stmt, 'sssssssi',
+            $name, $price, $newImgBytes, $description, $availability, $listingType, $bidDeadline, $id);
     } else {
         $stmt = mysqli_prepare($conn,
             "UPDATE products SET product_name=?, product_price=?, product_description=?, product_availability=?, listing_type=?, bid_deadline=? WHERE id=?");
-        mysqli_stmt_bind_param($stmt, 'ssssssi', $name, $price, $description, $availability, $listingType, $bidDeadline, $id);
+        mysqli_stmt_bind_param($stmt, 'ssssssi',
+            $name, $price, $description, $availability, $listingType, $bidDeadline, $id);
     }
 
-    $result = mysqli_stmt_execute($stmt);
-
-    if (!$result) {
+    if (!mysqli_stmt_execute($stmt)) {
         echo json_encode(["success" => false, "message" => "Fout bij bijwerken: " . mysqli_error($conn)]);
         return;
     }

@@ -52,6 +52,7 @@ include_once '../functions/products/GetProduct.php';
 include_once '../functions/products/AddProduct.php';
 include_once '../functions/products/UpdateProduct.php';
 include_once '../functions/products/DeleteProduct.php';
+include_once '../functions/products/DisableProduct.php';
 include_once '../functions/products/BuyNow.php';
 include_once '../functions/credits/GetCredits.php';
 include_once '../functions/credits/UpdateCredits.php';
@@ -67,6 +68,7 @@ include_once '../functions/bids/AcceptBid.php';
 include_once '../functions/bids/RejectBid.php';
 include_once '../functions/bids/GetAllProductBids.php';
 include_once '../functions/bids/GetAllBids.php';
+include_once '../functions/bids/GetPublicBids.php';
 
 // Purchases
 include_once '../functions/purchases/GetUserPurchases.php';
@@ -169,6 +171,9 @@ switch ($function) {
     case 'deleteproduct':
         DeleteProduct($data, $connection);
         break;
+    case 'disableproduct':
+        DisableProduct($data, $connection);
+        break;
     case 'buynow':
         BuyNow($data, $connection);
         break;
@@ -202,6 +207,11 @@ switch ($function) {
         break;
 
     // ── Bids ──────────────────────────────────────────────
+    case 'checkauction':
+        $pid = $data['product_id'] ?? 0;
+        $finalized = tryFinalizeAuction((int)$pid, $connection);
+        echo json_encode(["success" => true, "finalized" => $finalized]);
+        break;
     case 'placebid':
         PlaceBid($data, $connection);
         break;
@@ -225,6 +235,9 @@ switch ($function) {
         break;
     case 'getallbids':
         GetAllBids($data, $connection);
+        break;
+    case 'getpublicbids':
+        GetPublicBids($data, $connection);
         break;
 
     // ── Purchases / history ───────────────────────────────
