@@ -25,15 +25,18 @@ function isPasswordStrong($password, &$message)
 
 function registerUser($data, $conn)
 {
-    $email = $data['email'] ?? null;
+    $email       = $data['email']       ?? null;
     $phonenumber = $data['phonenumber'] ?? null;
-    $password = $data['password'] ?? null;
-    $name = $data['name'] ?? $data['firstname'] ?? $email ?? '';
+    $password    = $data['password']    ?? null;
+    $name        = $data['name']        ?? $data['firstname'] ?? '';
+    $username    = $data['username']    ?? '';
+    $surname     = $data['surname']     ?? '';
+    $adress      = $data['adress']      ?? '';
 
     if (empty($email) || empty($password) || empty($phonenumber)) {
         echo json_encode([
             "success" => false,
-            "message" => "Alle verplichte velden moeten ingevuld zijn"
+            "message" => "Naam, email, wachtwoord en telefoonnummer zijn verplicht"
         ]);
         return;
     }
@@ -46,27 +49,24 @@ function registerUser($data, $conn)
         return;
     }
 
-    // if (!isPasswordStrong($password, $message)) {
-    //     echo json_encode([
-    //         "success" => false,
-    //         "message" => $message
-    //     ]);
-    //     return;
-    // }
-
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO user (email, phonenumber, password, name, created_at) 
-            VALUES (?, ?, ?, ?, NOW())";
+    // Create credit record first (50 starting Recy's) so we have the id for the user insert
+    $creditStmt = mysqli_prepare($conn, "INSERT INTO credit (amount) VALUES (50)");
+    mysqli_stmt_execute($creditStmt);
+    $creditId = mysqli_insert_id($conn);
 
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, 'ssss', $email, $phonenumber, $hashedPassword, $name);
+    $stmt = mysqli_prepare($conn,
+        "INSERT INTO user (email, phonenumber, password, name, username, surname, adress, role, credit_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'user', ?)");
+    mysqli_stmt_bind_param($stmt, 'sssssssi',
+        $email, $phonenumber, $hashedPassword, $name, $username, $surname, $adress, $creditId);
     $result = mysqli_stmt_execute($stmt);
 
     if (!$result) {
         echo json_encode([
             "success" => false,
-            "message" => "Fout bij aanmaken gebruiker: " . mysqli_last_error($conn)
+            "message" => "Fout bij aanmaken gebruiker: " . mysqli_error($conn)
         ]);
         return;
     }
@@ -76,9 +76,7 @@ function registerUser($data, $conn)
     echo json_encode([
         "success" => true,
         "message" => "Account is succesvol aangemaakt",
-        "data" => [
-            "userid" => $userid,
-        ]
+        "data"    => ["userid" => $userid]
     ]);
 }
 
@@ -103,7 +101,7 @@ function checkLogin($data, $conn)
     if (!$result) {
         echo json_encode([
             "success" => false,
-            "message" => "Database fout: " . mysqli_last_error($conn)
+            "message" => "Database fout: " . mysqli_error($conn)
         ]);
         return;
     }
@@ -116,10 +114,12 @@ function checkLogin($data, $conn)
             "success" => true,
             "message" => "Login successful",
             "data" => [
-                "userid" => $user['id'],
-                "email" => $user['email'],
-                "role" => $user['role'] ?? null,
-                "phonenumber" => $user['phonenumber']
+                "userid"      => $user['id'],
+                "name"        => $user['name'],
+                "username"    => $user['username'],
+                "email"       => $user['email'],
+                "role"        => $user['role'] ?? 'user',
+                "phonenumber" => $user['phonenumber'],
             ],
         ]);
     } else {
@@ -129,4 +129,3 @@ function checkLogin($data, $conn)
         ]);
     }
 }
-?>  

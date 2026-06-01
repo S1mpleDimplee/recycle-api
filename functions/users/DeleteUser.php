@@ -1,30 +1,42 @@
 <?php
 
-function DeleteUser($data, $connection)
+function DeleteUser($data, $conn)
 {
-    $userId = $data['userid'] ?? '';
+    $adminId = $data['adminid'] ?? '';
+    $userId  = $data['userid']  ?? '';
 
-    if (empty($userId)) {
-        echo json_encode(["success" => false, "message" => "Gebruiker niet gevonden"]);
-        return;
-    }
-    // Check if user has any bookings still active or in the future
-    $check = mysqli_query($connection, "SELECT id FROM booking WHERE user_id = '$userId' AND check_out >= CURDATE()");
-
-    if (mysqli_num_rows($check) > 0) {
-        echo json_encode([
-            "success" => false,
-            "message" => "Gebruiker kan niet worden verwijderd, er zijn nog actieve of toekomstige boekingen"
-        ]);
+    if (empty($adminId) || empty($userId)) {
+        echo json_encode(["success" => false, "message" => "Admin ID en gebruiker ID zijn verplicht"]);
         return;
     }
 
-    mysqli_query($connection, "DELETE FROM address WHERE user_id = '$userId'");
-    $result = mysqli_query($connection, "DELETE FROM user WHERE id = '$userId'");
+    requireAdmin($adminId, $conn);
+
+    // Delete user's listings first
+    $delProducts = mysqli_prepare($conn, "DELETE FROM p WHERE user_id = ?");
+    mysqli_stmt_bind_param($delProducts, 'i', $userId);
+    mysqli_stmt_execute($delProducts);
+
+    // Delete user's credit record
+    $creditStmt = mysqli_prepare($conn, "SELECT credit_id FROM user WHERE id = ?");
+    mysqli_stmt_bind_param($creditStmt, 'i', $userId);
+    mysqli_stmt_execute($creditStmt);
+    $creditResult = mysqli_stmt_get_result($creditStmt);
+    $creditRow = mysqli_fetch_assoc($creditResult);
+
+    $delUser = mysqli_prepare($conn, "DELETE FROM user WHERE id = ?");
+    mysqli_stmt_bind_param($delUser, 'i', $userId);
+    $result = mysqli_stmt_execute($delUser);
 
     if (!$result) {
-        echo json_encode(["success" => false, "message" => "Fout bij verwijderen: " . mysqli_error($connection)]);
+        echo json_encode(["success" => false, "message" => "Fout bij verwijderen: " . mysqli_error($conn)]);
         return;
+    }
+
+    if ($creditRow && !empty($creditRow['credit_id'])) {
+        $delCredit = mysqli_prepare($conn, "DELETE FROM credit WHERE id = ?");
+        mysqli_stmt_bind_param($delCredit, 'i', $creditRow['credit_id']);
+        mysqli_stmt_execute($delCredit);
     }
 
     echo json_encode(["success" => true, "message" => "Gebruiker succesvol verwijderd"]);

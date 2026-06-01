@@ -1,23 +1,26 @@
 <?php
 
-function GetAllUsers($conn) {
-    $sql = "SELECT id,name,email,email_verified,role,created_at FROM user";
-    $result = mysqli_query($conn, $sql);
+function GetAllUsers($data, $conn)
+{
+    $adminId = $data['adminid'] ?? '';
 
-    if (mysqli_num_rows($result) > 0) {
-        $users = array();
-        while ($row = mysqli_fetch_assoc($result)) {
-            $users[] = $row;
-        }
-         echo json_encode([
-            "success" => true,
-            "message" => "Gebruikers succesvol opgehaald",
-            "data" => $users
-        ]);
-    } else {
-        echo json_encode([
-            "success" => false,
-            "message" => "Geen gebruikers gevonden"
-        ]);
+    if (empty($adminId)) {
+        echo json_encode(["success" => false, "message" => "Admin ID is verplicht"]);
+        return;
     }
+
+    requireAdmin($adminId, $conn);
+
+    $result = mysqli_query($conn,
+        "SELECT u.id, u.name, u.username, u.surname, u.email, u.role, u.phonenumber, c.amount AS credits
+         FROM user u
+         LEFT JOIN credit c ON c.id = u.credit_id
+         ORDER BY u.id DESC");
+
+    $users = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $users[] = $row;
+    }
+
+    echo json_encode(["success" => true, "data" => $users]);
 }

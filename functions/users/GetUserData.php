@@ -1,22 +1,35 @@
 <?php
 
-function GetUserData($data, $connection)
+// Admin – get full data for any user
+function GetUserData($data, $conn)
 {
-   $userId = $data['userid'] ?? '';
+    $adminId = $data['adminid'] ?? '';
+    $userId  = $data['userid']  ?? '';
 
-   $query = "
-        SELECT u.*, a.street, a.housenumber, a.addition, a.zipcode, a.city
-        FROM user u
-        LEFT JOIN address a ON a.user_id = u.id
-        WHERE u.id = '$userId'
-    ";
-   $result = mysqli_query($connection, $query);
+    if (empty($adminId) || empty($userId)) {
+        echo json_encode(["success" => false, "message" => "adminid en userid zijn verplicht"]);
+        return;
+    }
 
-   if ($result && mysqli_num_rows($result) > 0) {
-      $userData = mysqli_fetch_assoc($result);
-      unset($userData['password']); // dnt return psw
-      echo json_encode(["success" => true, "data" => $userData]);
-   } else {
-      echo json_encode(["success" => false, "message" => "Gebruiker niet gevonden"]);
-   }
+    requireAdmin($adminId, $conn);
+
+    $stmt = mysqli_prepare($conn,
+        "SELECT u.id, u.name, u.username, u.surname, u.email,
+                u.adress, u.phonenumber, u.role,
+                u.email_verified, u.created_at,
+                COALESCE(c.amount, 0) AS credits
+         FROM user u
+         LEFT JOIN credit c ON c.id = u.credit_id
+         WHERE u.id = ?");
+    mysqli_stmt_bind_param($stmt, 'i', $userId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user = mysqli_fetch_assoc($result);
+
+    if (!$user) {
+        echo json_encode(["success" => false, "message" => "Gebruiker niet gevonden"]);
+        return;
+    }
+
+    echo json_encode(["success" => true, "data" => $user]);
 }
