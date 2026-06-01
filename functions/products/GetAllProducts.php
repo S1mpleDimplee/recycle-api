@@ -11,7 +11,7 @@ function GetAllProducts($conn)
             ORDER BY p.id DESC";
     $result = mysqli_query($conn, $sql);
 
-    $base = 'http://' . $_SERVER['HTTP_HOST'] . '/phpopdrachten/derde_jaar/recycle-api/serve_image.php?id=';
+    $base = serveBase('serve_image.php');
     $products = [];
     while ($row = mysqli_fetch_assoc($result)) {
         $row['product_img'] = $row['has_img'] ? $base . $row['id'] : null;

@@ -27,7 +27,7 @@ function GetProduct($data, $conn)
         return;
     }
 
-    $base = 'http://' . $_SERVER['HTTP_HOST'] . '/phpopdrachten/derde_jaar/recycle-api/serve_image.php?id=';
+    $base = serveBase('serve_image.php');
     $product['product_img'] = $product['has_img'] ? $base . $product['id'] : null;
     unset($product['has_img']);
 

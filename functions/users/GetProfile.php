@@ -26,7 +26,8 @@ function GetProfile($data, $conn)
         return;
     }
 
-    $base = 'http://' . $_SERVER['HTTP_HOST'] . '/phpopdrachten/derde_jaar/recycle-api/serve_profile.php?id=';
+    $base = serveBase('serve_profile.php');
+
     $user['profile_img'] = $user['has_img'] ? $base . $user['id'] : null;
     unset($user['has_img']);
 
