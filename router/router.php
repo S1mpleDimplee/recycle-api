@@ -96,6 +96,7 @@ if (!$connection) {
         "message" => "Connectie met de database is mislukt."
     ]));
 }
+mysqli_set_charset($connection, 'utf8mb4');
 
 // Read the received data
 $request = json_decode(file_get_contents('php://input'), true);
