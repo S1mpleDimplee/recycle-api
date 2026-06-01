@@ -34,7 +34,21 @@ if (!move_uploaded_file($_FILES['file']['tmp_name'], $uploadDir . $filename)) {
     exit();
 }
 
-$conn = mysqli_connect("jaylanovanderveen.nl", "jaylanovanderv_recycle", "hawktuah", "jaylanovanderv_recycle");
+$envPath = __DIR__ . '/../.env';
+if (file_exists($envPath)) {
+    foreach (file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        if (str_starts_with(trim($line), '#')) continue;
+        [$key, $val] = explode('=', $line, 2);
+        $_ENV[trim($key)] = trim($val);
+    }
+}
+
+$conn = mysqli_connect(
+    $_ENV['DB_HOST'] ?? '',
+    $_ENV['DB_USER'] ?? '',
+    $_ENV['DB_PASS'] ?? '',
+    $_ENV['DB_NAME'] ?? ''
+);
 if ($conn) {
     $imgPath = 'uploads/profiles/' . $filename;
     $stmt    = mysqli_prepare($conn, "UPDATE users SET profile_img = ? WHERE id = ?");
@@ -44,5 +58,5 @@ if ($conn) {
 
 echo json_encode([
     "success" => true,
-    "url"     => "http://localhost/recycle-api/uploads/profiles/" . $filename,
+    "url"     => "http://localhost/phpopdrachten/derde_jaar/recycle-api/uploads/profiles/" . $filename,
 ]);
