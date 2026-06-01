@@ -14,6 +14,7 @@ function GetUserBids($data, $conn)
         "SELECT b.id, b.amount, b.status, b.created_at,
                 p.id AS product_id, p.product_name, p.product_price,
                 p.product_availability,
+                (p.product_img IS NOT NULL AND LENGTH(p.product_img) > 0) AS has_img,
                 u.name AS seller_name
          FROM bids b
          INNER JOIN products p  ON p.id = b.product_id
@@ -24,8 +25,11 @@ function GetUserBids($data, $conn)
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
+    $base = 'http://' . $_SERVER['HTTP_HOST'] . '/phpopdrachten/derde_jaar/recycle-api/serve_image.php?id=';
     $bids = [];
     while ($row = mysqli_fetch_assoc($result)) {
+        $row['product_img'] = $row['has_img'] ? $base . $row['product_id'] : null;
+        unset($row['has_img']);
         $bids[] = $row;
     }
 
