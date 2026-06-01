@@ -52,6 +52,7 @@ include_once '../functions/products/GetProduct.php';
 include_once '../functions/products/AddProduct.php';
 include_once '../functions/products/UpdateProduct.php';
 include_once '../functions/products/DeleteProduct.php';
+include_once '../functions/products/BuyNow.php';
 include_once '../functions/credits/GetCredits.php';
 include_once '../functions/credits/UpdateCredits.php';
 include_once '../functions/dashboard/GetUserDashboard.php';
@@ -72,14 +73,30 @@ include_once '../functions/purchases/GetUserPurchases.php';
 include_once '../functions/purchases/GetUserSales.php';
 include_once '../functions/purchases/GetAllTransactions.php';
 
+// Load .env
+$envPath = __DIR__ . '/../.env';
+if (file_exists($envPath)) {
+    foreach (file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        if (str_starts_with(trim($line), '#')) continue;
+        [$key, $val] = explode('=', $line, 2);
+        $_ENV[trim($key)] = trim($val);
+    }
+}
+
 // Database connection
-$connection = mysqli_connect("jaylanovanderveen.nl", "jaylanovanderv_recycle", "hawktuah", "jaylanovanderv_recycle");
+$connection = mysqli_connect(
+    $_ENV['DB_HOST'] ?? '',
+    $_ENV['DB_USER'] ?? '',
+    $_ENV['DB_PASS'] ?? '',
+    $_ENV['DB_NAME'] ?? ''
+);
 if (!$connection) {
     die(json_encode([
         "success" => false,
         "message" => "Connectie met de database is mislukt."
     ]));
 }
+mysqli_set_charset($connection, 'utf8mb4');
 
 // Read the received data
 $request = json_decode(file_get_contents('php://input'), true);
@@ -151,6 +168,9 @@ switch ($function) {
         break;
     case 'deleteproduct':
         DeleteProduct($data, $connection);
+        break;
+    case 'buynow':
+        BuyNow($data, $connection);
         break;
 
     case 'getallproducts':

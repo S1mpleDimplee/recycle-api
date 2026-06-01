@@ -26,3 +26,7 @@ ALTER TABLE `users`
 ALTER TABLE `products`
   ADD COLUMN `bid_deadline`  datetime     DEFAULT NULL,
   ADD COLUMN `listing_type`  varchar(10)  NOT NULL DEFAULT 'bid';
+
+-- 5. Allow direct purchases without a bid (bid_id = NULL)
+ALTER TABLE `purchases`
+  MODIFY `bid_id` int(12) DEFAULT NULL;

@@ -15,7 +15,7 @@ function GetAllTransactions($data, $conn)
     $result = mysqli_query($conn,
         "SELECT
             pur.id, pur.amount_paid, pur.created_at,
-            p.id   AS product_id, p.product_name, p.product_img,
+            p.id   AS product_id, p.product_name,
             buyer.id   AS buyer_id,  buyer.name  AS buyer_name,
             seller.id  AS seller_id, seller.name AS seller_name
          FROM purchases pur
