@@ -1,5 +1,15 @@
 ﻿<?php
 
+function serveBase($script)
+{
+    $host = 'http://' . $_SERVER['HTTP_HOST'];
+    $longPath = '/phpopdrachten/derde_jaar/recycle-api/' . $script;
+    if (file_exists($_SERVER['DOCUMENT_ROOT'] . $longPath)) {
+        return $host . $longPath . '?id=';
+    }
+    return $host . '/recycle-api/' . $script . '?id=';
+}
+
 function isAdmin($userId, $conn)
 {
     $stmt = mysqli_prepare($conn, "SELECT role FROM users WHERE id = ?");

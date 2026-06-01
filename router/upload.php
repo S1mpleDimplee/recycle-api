@@ -38,6 +38,8 @@ if (file_exists($envPath)) {
     }
 }
 
+require_once __DIR__ . '/../functions/helpers.php';
+
 $conn = mysqli_connect(
     $_ENV['DB_HOST'] ?? '',
     $_ENV['DB_USER'] ?? '',
@@ -56,7 +58,8 @@ if (!mysqli_stmt_execute($stmt)) {
     exit();
 }
 
-$serveUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/phpopdrachten/derde_jaar/recycle-api/serve_profile.php?id=' . $userId;
+$serveUrl = serveBase('serve_profile.php') . $userId;
+
 
 echo json_encode([
     "success" => true,
