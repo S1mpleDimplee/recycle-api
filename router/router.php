@@ -1,6 +1,4 @@
 ﻿<?php
-require_once __DIR__ . '/../vendor/autoload.php';
-
 $allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowedOrigins)) {
