@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function GetAdminDashboard($data, $conn)
 {
@@ -12,8 +12,8 @@ function GetAdminDashboard($data, $conn)
     requireAdmin($adminId, $conn);
 
     // User counts
-    $userRow   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM user"));
-    $adminRow  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM user WHERE role = 'admin'"));
+    $userRow   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM users"));
+    $adminRow  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM users WHERE role = 'admin'"));
 
     // Product counts
     $prod = mysqli_fetch_assoc(mysqli_query($conn,
@@ -22,12 +22,12 @@ function GetAdminDashboard($data, $conn)
             SUM(product_availability = 'available') AS available,
             SUM(product_availability = 'sold')      AS sold,
             SUM(product_availability = 'reserved')  AS reserved
-         FROM p"));
+         FROM products p"));
 
     // Transaction stats
     $txRow = mysqli_fetch_assoc(mysqli_query($conn,
         "SELECT COUNT(*) AS total_tx, COALESCE(SUM(amount_paid), 0) AS total_volume
-         FROM purchase"));
+         FROM purchases"));
 
     // Bid stats
     $bidRow = mysqli_fetch_assoc(mysqli_query($conn,
@@ -37,11 +37,11 @@ function GetAdminDashboard($data, $conn)
             SUM(status = 'accepted')  AS accepted,
             SUM(status = 'rejected')  AS rejected,
             SUM(status = 'cancelled') AS cancelled
-         FROM bid"));
+         FROM bids"));
 
     // 5 most recent users
     $recentUsersResult = mysqli_query($conn,
-        "SELECT id, name, username, email, role, created_at FROM user ORDER BY id DESC LIMIT 5");
+        "SELECT id, name, username, email, role, created_at FROM users ORDER BY id DESC LIMIT 5");
     $latestUsers = [];
     while ($row = mysqli_fetch_assoc($recentUsersResult)) {
         $latestUsers[] = $row;
@@ -53,10 +53,10 @@ function GetAdminDashboard($data, $conn)
                 p.product_name,
                 buyer.name  AS buyer_name,
                 seller.name AS seller_name
-         FROM purchase pur
-         INNER JOIN p    ON p.id    = pur.product_id
-         INNER JOIN user buyer  ON buyer.id  = pur.buyer_id
-         INNER JOIN user seller ON seller.id = pur.seller_id
+         FROM purchases pur
+         INNER JOIN products p    ON p.id    = pur.product_id
+         INNER JOIN users buyer  ON buyer.id  = pur.buyer_id
+         INNER JOIN users seller ON seller.id = pur.seller_id
          ORDER BY pur.created_at DESC LIMIT 5");
     $latestTransactions = [];
     while ($row = mysqli_fetch_assoc($recentTxResult)) {

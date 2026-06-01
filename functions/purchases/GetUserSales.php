@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Items the user sold – seller history
 function GetUserSales($data, $conn)
@@ -18,9 +18,9 @@ function GetUserSales($data, $conn)
             buyer.id   AS buyer_id,
             buyer.name AS buyer_name,
             buyer.username AS buyer_username
-         FROM purchase pur
-         INNER JOIN p    ON p.id   = pur.product_id
-         INNER JOIN user buyer ON buyer.id = pur.buyer_id
+         FROM purchases pur
+         INNER JOIN products p    ON p.id   = pur.product_id
+         INNER JOIN users buyer ON buyer.id = pur.buyer_id
          WHERE pur.seller_id = ?
          ORDER BY pur.created_at DESC");
     mysqli_stmt_bind_param($stmt, 'i', $userId);

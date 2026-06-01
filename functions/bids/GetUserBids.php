@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Bids the logged-in user has placed (for /users/bids page)
 function GetUserBids($data, $conn)
@@ -15,9 +15,9 @@ function GetUserBids($data, $conn)
                 p.id AS product_id, p.product_name, p.product_price,
                 p.product_img, p.product_availability,
                 u.name AS seller_name
-         FROM bid b
-         INNER JOIN p  ON p.id = b.product_id
-         INNER JOIN user u ON u.id = p.user_id
+         FROM bids b
+         INNER JOIN products p  ON p.id = b.product_id
+         INNER JOIN users u ON u.id = p.user_id
          WHERE b.bidder_id = ?
          ORDER BY b.created_at DESC");
     mysqli_stmt_bind_param($stmt, 'i', $userId);

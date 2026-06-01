@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Admin – get full data for any user
 function GetUserData($data, $conn)
@@ -18,8 +18,8 @@ function GetUserData($data, $conn)
                 u.adress, u.phonenumber, u.role,
                 u.email_verified, u.created_at,
                 COALESCE(c.amount, 0) AS credits
-         FROM user u
-         LEFT JOIN credit c ON c.id = u.credit_id
+         FROM users u
+         LEFT JOIN credits c ON c.id = u.credit_id
          WHERE u.id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $userId);
     mysqli_stmt_execute($stmt);

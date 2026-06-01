@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Seller rejects a single bid (product stays available)
 function RejectBid($data, $conn)
@@ -14,8 +14,8 @@ function RejectBid($data, $conn)
     // Load bid + product owner
     $stmt = mysqli_prepare($conn,
         "SELECT b.status, p.user_id AS owner_id
-         FROM bid b
-         INNER JOIN p ON p.id = b.product_id
+         FROM bids b
+         INNER JOIN products p ON p.id = b.product_id
          WHERE b.id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $bidId);
     mysqli_stmt_execute($stmt);
@@ -35,7 +35,7 @@ function RejectBid($data, $conn)
         return;
     }
 
-    $update = mysqli_prepare($conn, "UPDATE bid SET status = 'rejected' WHERE id = ?");
+    $update = mysqli_prepare($conn, "UPDATE bids SET status = 'rejected' WHERE id = ?");
     mysqli_stmt_bind_param($update, 'i', $bidId);
     mysqli_stmt_execute($update);
 

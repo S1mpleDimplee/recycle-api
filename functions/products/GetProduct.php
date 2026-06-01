@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function GetProduct($data, $conn)
 {
@@ -10,8 +10,8 @@ function GetProduct($data, $conn)
     }
 
     $stmt = mysqli_prepare($conn, "SELECT p.*, u.name AS seller_name, u.username AS seller_username
-                                   FROM p
-                                   LEFT JOIN user u ON u.id = p.user_id
+                                   FROM products p
+                                   LEFT JOIN users u ON u.id = p.user_id
                                    WHERE p.id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $id);
     mysqli_stmt_execute($stmt);

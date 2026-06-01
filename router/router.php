@@ -1,4 +1,6 @@
-<?php
+﻿<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
 $allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowedOrigins)) {
@@ -13,11 +15,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
+
+set_exception_handler(function (Throwable $e) {
+    http_response_code(500);
+    echo json_encode([
+        "success" => false,
+        "message" => "Er is een serverfout opgetreden.",
+        "error"   => $e->getMessage(),
+    ]);
+    exit();
+});
+
+set_error_handler(function ($severity, $message, $file, $line) {
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
 session_start();
 
 include_once '../functions/helpers.php';
 include_once '../functions/authentication/authentication.php';
+include_once '../functions/authentication/ForgotPassword.php';
+include_once '../functions/authentication/ResetPassword.php';
+include_once '../functions/authentication/Verify2FA.php';
+include_once '../functions/authentication/ResendVerification.php';
 include_once '../functions/mail/confirmEmailAddress.php';
+include_once '../functions/users/DeleteOwnAccount.php';
 include_once '../functions/users/GetAllUsers.php';
 include_once '../functions/users/GetProfile.php';
 include_once '../functions/users/UpdateProfile.php';
@@ -43,6 +65,7 @@ include_once '../functions/bids/GetProductBids.php';
 include_once '../functions/bids/AcceptBid.php';
 include_once '../functions/bids/RejectBid.php';
 include_once '../functions/bids/GetAllProductBids.php';
+include_once '../functions/bids/GetAllBids.php';
 
 // Purchases
 include_once '../functions/purchases/GetUserPurchases.php';
@@ -85,6 +108,21 @@ switch ($function) {
         break;
     case 'confirmemailwithlink':
         confirmEmailWithLink($data, $connection);
+        break;
+    case 'resendverification':
+        ResendVerification($data, $connection);
+        break;
+    case 'forgotpassword':
+        ForgotPassword($data, $connection);
+        break;
+    case 'resetpassword':
+        ResetPassword($data, $connection);
+        break;
+    case 'verify2fa':
+        Verify2FA($data, $connection);
+        break;
+    case 'deleteownaccount':
+        DeleteOwnAccount($data, $connection);
         break;
 
     case 'getuserprofile':
@@ -164,6 +202,9 @@ switch ($function) {
         break;
     case 'getallproductbids':
         GetAllProductBids($data, $connection);
+        break;
+    case 'getallbids':
+        GetAllBids($data, $connection);
         break;
 
     // ── Purchases / history ───────────────────────────────

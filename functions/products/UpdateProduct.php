@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function UpdateProduct($data, $conn)
 {
@@ -16,7 +16,7 @@ function UpdateProduct($data, $conn)
     }
 
     // Fetch product owner
-    $check = mysqli_prepare($conn, "SELECT user_id FROM p WHERE id = ?");
+    $check = mysqli_prepare($conn, "SELECT user_id FROM products p WHERE id = ?");
     mysqli_stmt_bind_param($check, 'i', $id);
     mysqli_stmt_execute($check);
     $checkResult = mysqli_stmt_get_result($check);
@@ -34,7 +34,7 @@ function UpdateProduct($data, $conn)
     }
 
     $stmt = mysqli_prepare($conn,
-        "UPDATE p SET product_name=?, product_price=?, product_img=?, product_description=?, product_availability=? WHERE id=?");
+        "UPDATE products SET product_name=?, product_price=?, product_img=?, product_description=?, product_availability=? WHERE id=?");
     mysqli_stmt_bind_param($stmt, 'sssssi', $name, $price, $img, $description, $availability, $id);
     $result = mysqli_stmt_execute($stmt);
 

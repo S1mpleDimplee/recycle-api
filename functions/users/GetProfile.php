@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function GetProfile($data, $conn)
 {
@@ -10,9 +10,9 @@ function GetProfile($data, $conn)
     }
 
     $stmt = mysqli_prepare($conn,
-        "SELECT u.id, u.name, u.username, u.surname, u.email, u.adress, u.phonenumber, u.role, c.amount AS credits
-         FROM user u
-         LEFT JOIN credit c ON c.id = u.credit_id
+        "SELECT u.id, u.name, u.username, u.surname, u.email, u.adress, u.phonenumber, u.role, u.profile_img, c.amount AS credits
+         FROM users u
+         LEFT JOIN credits c ON c.id = u.credit_id
          WHERE u.id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $userId);
     mysqli_stmt_execute($stmt);

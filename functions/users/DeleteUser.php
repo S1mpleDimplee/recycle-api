@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function DeleteUser($data, $conn)
 {
@@ -13,18 +13,18 @@ function DeleteUser($data, $conn)
     requireAdmin($adminId, $conn);
 
     // Delete user's listings first
-    $delProducts = mysqli_prepare($conn, "DELETE FROM p WHERE user_id = ?");
+    $delProducts = mysqli_prepare($conn, "DELETE FROM products WHERE user_id = ?");
     mysqli_stmt_bind_param($delProducts, 'i', $userId);
     mysqli_stmt_execute($delProducts);
 
     // Delete user's credit record
-    $creditStmt = mysqli_prepare($conn, "SELECT credit_id FROM user WHERE id = ?");
+    $creditStmt = mysqli_prepare($conn, "SELECT credit_id FROM users WHERE id = ?");
     mysqli_stmt_bind_param($creditStmt, 'i', $userId);
     mysqli_stmt_execute($creditStmt);
     $creditResult = mysqli_stmt_get_result($creditStmt);
     $creditRow = mysqli_fetch_assoc($creditResult);
 
-    $delUser = mysqli_prepare($conn, "DELETE FROM user WHERE id = ?");
+    $delUser = mysqli_prepare($conn, "DELETE FROM users WHERE id = ?");
     mysqli_stmt_bind_param($delUser, 'i', $userId);
     $result = mysqli_stmt_execute($delUser);
 
@@ -34,7 +34,7 @@ function DeleteUser($data, $conn)
     }
 
     if ($creditRow && !empty($creditRow['credit_id'])) {
-        $delCredit = mysqli_prepare($conn, "DELETE FROM credit WHERE id = ?");
+        $delCredit = mysqli_prepare($conn, "DELETE FROM credits WHERE id = ?");
         mysqli_stmt_bind_param($delCredit, 'i', $creditRow['credit_id']);
         mysqli_stmt_execute($delCredit);
     }

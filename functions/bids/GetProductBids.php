@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Bids placed ON a product – only visible to the product owner
 function GetProductBids($data, $conn)
@@ -12,7 +12,7 @@ function GetProductBids($data, $conn)
     }
 
     // Verify the requester owns the product (or is admin)
-    $ownerStmt = mysqli_prepare($conn, "SELECT user_id FROM p WHERE id = ?");
+    $ownerStmt = mysqli_prepare($conn, "SELECT user_id FROM products p WHERE id = ?");
     mysqli_stmt_bind_param($ownerStmt, 'i', $productId);
     mysqli_stmt_execute($ownerStmt);
     $ownerResult = mysqli_stmt_get_result($ownerStmt);
@@ -30,8 +30,8 @@ function GetProductBids($data, $conn)
     $stmt = mysqli_prepare($conn,
         "SELECT b.id, b.amount, b.status, b.created_at,
                 u.id AS bidder_id, u.name AS bidder_name, u.username AS bidder_username
-         FROM bid b
-         INNER JOIN user u ON u.id = b.bidder_id
+         FROM bids b
+         INNER JOIN users u ON u.id = b.bidder_id
          WHERE b.product_id = ?
          ORDER BY b.amount DESC, b.created_at ASC");
     mysqli_stmt_bind_param($stmt, 'i', $productId);

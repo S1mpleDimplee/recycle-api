@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Admin – full transaction log
 function GetAllTransactions($data, $conn)
@@ -18,10 +18,10 @@ function GetAllTransactions($data, $conn)
             p.id   AS product_id, p.product_name, p.product_img,
             buyer.id   AS buyer_id,  buyer.name  AS buyer_name,
             seller.id  AS seller_id, seller.name AS seller_name
-         FROM purchase pur
-         INNER JOIN p    ON p.id    = pur.product_id
-         INNER JOIN user buyer  ON buyer.id  = pur.buyer_id
-         INNER JOIN user seller ON seller.id = pur.seller_id
+         FROM purchases pur
+         INNER JOIN products p    ON p.id    = pur.product_id
+         INNER JOIN users buyer  ON buyer.id  = pur.buyer_id
+         INNER JOIN users seller ON seller.id = pur.seller_id
          ORDER BY pur.created_at DESC");
 
     $transactions = [];

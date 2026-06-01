@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 
 function isAdmin($userId, $conn)
 {
-    $stmt = mysqli_prepare($conn, "SELECT role FROM user WHERE id = ?");
+    $stmt = mysqli_prepare($conn, "SELECT role FROM users WHERE id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -24,7 +24,7 @@ function requireAdmin($userId, $conn)
  */
 function ensureCreditRecord($userId, $conn)
 {
-    $stmt = mysqli_prepare($conn, "SELECT credit_id FROM user WHERE id = ?");
+    $stmt = mysqli_prepare($conn, "SELECT credit_id FROM users WHERE id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -37,11 +37,11 @@ function ensureCreditRecord($userId, $conn)
     }
 
     // Create a new credit record and link it
-    $ins = mysqli_prepare($conn, "INSERT INTO credit (amount) VALUES (0)");
+    $ins = mysqli_prepare($conn, "INSERT INTO credits (amount) VALUES (0)");
     mysqli_stmt_execute($ins);
     $creditId = mysqli_insert_id($conn);
 
-    $link = mysqli_prepare($conn, "UPDATE user SET credit_id = ? WHERE id = ?");
+    $link = mysqli_prepare($conn, "UPDATE users SET credit_id = ? WHERE id = ?");
     mysqli_stmt_bind_param($link, 'ii', $creditId, $userId);
     mysqli_stmt_execute($link);
 
@@ -62,7 +62,7 @@ function transferCredits($buyerId, $sellerId, $amount, $conn)
     }
 
     // Check buyer balance
-    $bal = mysqli_prepare($conn, "SELECT amount FROM credit WHERE id = ?");
+    $bal = mysqli_prepare($conn, "SELECT amount FROM credits WHERE id = ?");
     mysqli_stmt_bind_param($bal, 'i', $buyerCreditId);
     mysqli_stmt_execute($bal);
     $balResult = mysqli_stmt_get_result($bal);
@@ -73,14 +73,14 @@ function transferCredits($buyerId, $sellerId, $amount, $conn)
     }
 
     // Deduct from buyer
-    $deduct = mysqli_prepare($conn, "UPDATE credit SET amount = amount - ? WHERE id = ?");
+    $deduct = mysqli_prepare($conn, "UPDATE credits SET amount = amount - ? WHERE id = ?");
     mysqli_stmt_bind_param($deduct, 'ii', $amount, $buyerCreditId);
     if (!mysqli_stmt_execute($deduct)) {
         return ['ok' => false, 'message' => 'Fout bij afschrijven credits'];
     }
 
     // Add to seller
-    $add = mysqli_prepare($conn, "UPDATE credit SET amount = amount + ? WHERE id = ?");
+    $add = mysqli_prepare($conn, "UPDATE credits SET amount = amount + ? WHERE id = ?");
     mysqli_stmt_bind_param($add, 'ii', $amount, $sellerCreditId);
     if (!mysqli_stmt_execute($add)) {
         return ['ok' => false, 'message' => 'Fout bij bijschrijven credits'];

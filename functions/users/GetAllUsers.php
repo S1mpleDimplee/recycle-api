@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function GetAllUsers($data, $conn)
 {
@@ -13,8 +13,8 @@ function GetAllUsers($data, $conn)
 
     $result = mysqli_query($conn,
         "SELECT u.id, u.name, u.username, u.surname, u.email, u.role, u.phonenumber, c.amount AS credits
-         FROM user u
-         LEFT JOIN credit c ON c.id = u.credit_id
+         FROM users u
+         LEFT JOIN credits c ON c.id = u.credit_id
          ORDER BY u.id DESC");
 
     $users = [];

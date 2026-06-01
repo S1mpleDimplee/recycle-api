@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Adds (or subtracts with a negative value) credits for a user.
 // Admin-only endpoint.
@@ -16,7 +16,7 @@ function UpdateCredits($data, $conn)
     requireAdmin($adminId, $conn);
 
     // Get the credit_id for this user
-    $stmt = mysqli_prepare($conn, "SELECT credit_id FROM user WHERE id = ?");
+    $stmt = mysqli_prepare($conn, "SELECT credit_id FROM users WHERE id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -29,7 +29,7 @@ function UpdateCredits($data, $conn)
 
     $creditId = $user['credit_id'];
 
-    $update = mysqli_prepare($conn, "UPDATE credit SET amount = GREATEST(0, amount + ?) WHERE id = ?");
+    $update = mysqli_prepare($conn, "UPDATE credits SET amount = GREATEST(0, amount + ?) WHERE id = ?");
     mysqli_stmt_bind_param($update, 'ii', $delta, $creditId);
     $ok = mysqli_stmt_execute($update);
 
@@ -39,7 +39,7 @@ function UpdateCredits($data, $conn)
     }
 
     // Return new balance
-    $bal = mysqli_prepare($conn, "SELECT amount FROM credit WHERE id = ?");
+    $bal = mysqli_prepare($conn, "SELECT amount FROM credits WHERE id = ?");
     mysqli_stmt_bind_param($bal, 'i', $creditId);
     mysqli_stmt_execute($bal);
     $balResult = mysqli_stmt_get_result($bal);

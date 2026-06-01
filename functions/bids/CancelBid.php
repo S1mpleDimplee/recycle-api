@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function CancelBid($data, $conn)
 {
@@ -11,7 +11,7 @@ function CancelBid($data, $conn)
     }
 
     // Verify this bid belongs to the user and is still pending
-    $stmt = mysqli_prepare($conn, "SELECT bidder_id, status FROM bid WHERE id = ?");
+    $stmt = mysqli_prepare($conn, "SELECT bidder_id, status FROM bids WHERE id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $bidId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -30,7 +30,7 @@ function CancelBid($data, $conn)
         return;
     }
 
-    $update = mysqli_prepare($conn, "UPDATE bid SET status = 'cancelled' WHERE id = ?");
+    $update = mysqli_prepare($conn, "UPDATE bids SET status = 'cancelled' WHERE id = ?");
     mysqli_stmt_bind_param($update, 'i', $bidId);
     mysqli_stmt_execute($update);
 

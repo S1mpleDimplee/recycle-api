@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function GetUserProducts($data, $conn)
 {
@@ -9,7 +9,7 @@ function GetUserProducts($data, $conn)
         return;
     }
 
-    $stmt = mysqli_prepare($conn, "SELECT * FROM p WHERE user_id = ? ORDER BY id DESC");
+    $stmt = mysqli_prepare($conn, "SELECT * FROM products p WHERE user_id = ? ORDER BY id DESC");
     mysqli_stmt_bind_param($stmt, 'i', $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);

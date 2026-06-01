@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function PlaceBid($data, $conn)
 {
@@ -17,7 +17,7 @@ function PlaceBid($data, $conn)
     }
 
     // Check product exists, is available, and doesn't belong to the bidder
-    $prodStmt = mysqli_prepare($conn, "SELECT user_id, product_availability FROM p WHERE id = ?");
+    $prodStmt = mysqli_prepare($conn, "SELECT user_id, product_availability, bid_deadline, listing_type FROM products p WHERE id = ?");
     mysqli_stmt_bind_param($prodStmt, 'i', $productId);
     mysqli_stmt_execute($prodStmt);
     $prodResult = mysqli_stmt_get_result($prodStmt);
@@ -31,14 +31,32 @@ function PlaceBid($data, $conn)
         echo json_encode(["success" => false, "message" => "Je kunt niet bieden op je eigen artikel"]);
         return;
     }
+    if (($product['listing_type'] ?? 'bid') !== 'bid') {
+        echo json_encode(["success" => false, "message" => "Op dit artikel kan niet worden geboden"]);
+        return;
+    }
     if ($product['product_availability'] !== 'available') {
         echo json_encode(["success" => false, "message" => "Dit artikel is niet meer beschikbaar"]);
         return;
     }
+    if (!empty($product['bid_deadline']) && strtotime($product['bid_deadline']) < time()) {
+        echo json_encode(["success" => false, "message" => "De biedingstermijn voor dit artikel is verlopen"]);
+        return;
+    }
 
-    // One pending bid per user per product
+    $creditId = ensureCreditRecord($bidderId, $conn);
+    $balStmt  = mysqli_prepare($conn, "SELECT amount FROM credits WHERE id = ?");
+    mysqli_stmt_bind_param($balStmt, 'i', $creditId);
+    mysqli_stmt_execute($balStmt);
+    $balRow = mysqli_fetch_assoc(mysqli_stmt_get_result($balStmt));
+    if (!$balRow || (int)$balRow['amount'] <= 0) {
+        echo json_encode(["success" => false, "message" => "Je hebt onvoldoende Recy's om te bieden"]);
+        return;
+    }
+
+
     $dupStmt = mysqli_prepare($conn,
-        "SELECT id FROM bid WHERE product_id = ? AND bidder_id = ? AND status = 'pending'");
+        "SELECT id FROM bids WHERE product_id = ? AND bidder_id = ? AND status = 'pending'");
     mysqli_stmt_bind_param($dupStmt, 'ii', $productId, $bidderId);
     mysqli_stmt_execute($dupStmt);
     $dupResult = mysqli_stmt_get_result($dupStmt);
@@ -48,7 +66,7 @@ function PlaceBid($data, $conn)
     }
 
     $stmt = mysqli_prepare($conn,
-        "INSERT INTO bid (product_id, bidder_id, amount) VALUES (?, ?, ?)");
+        "INSERT INTO bids (product_id, bidder_id, amount) VALUES (?, ?, ?)");
     mysqli_stmt_bind_param($stmt, 'iii', $productId, $bidderId, $amount);
     $result = mysqli_stmt_execute($stmt);
 

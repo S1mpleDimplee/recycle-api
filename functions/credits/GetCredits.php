@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function GetCredits($data, $conn)
 {
@@ -10,8 +10,8 @@ function GetCredits($data, $conn)
     }
 
     $stmt = mysqli_prepare($conn,
-        "SELECT c.amount FROM credit c
-         INNER JOIN user u ON u.credit_id = c.id
+        "SELECT c.amount FROM credits c
+         INNER JOIN users u ON u.credit_id = c.id
          WHERE u.id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $userId);
     mysqli_stmt_execute($stmt);

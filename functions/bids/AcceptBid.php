@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function AcceptBid($data, $conn)
 {
@@ -14,8 +14,8 @@ function AcceptBid($data, $conn)
     $stmt = mysqli_prepare($conn,
         "SELECT b.status, b.amount, b.bidder_id,
                 p.id AS product_id, p.user_id AS owner_id
-         FROM bid b
-         INNER JOIN p ON p.id = b.product_id
+         FROM bids b
+         INNER JOIN products p ON p.id = b.product_id
          WHERE b.id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $bidId);
     mysqli_stmt_execute($stmt);
@@ -48,25 +48,25 @@ function AcceptBid($data, $conn)
     }
 
     // Accept this bid
-    $accept = mysqli_prepare($conn, "UPDATE bid SET status = 'accepted' WHERE id = ?");
+    $accept = mysqli_prepare($conn, "UPDATE bids SET status = 'accepted' WHERE id = ?");
     mysqli_stmt_bind_param($accept, 'i', $bidId);
     mysqli_stmt_execute($accept);
 
     // Reject all other pending bids on this product
     $rejectOthers = mysqli_prepare($conn,
-        "UPDATE bid SET status = 'rejected'
+        "UPDATE bids SET status = 'rejected'
          WHERE product_id = ? AND id != ? AND status = 'pending'");
     mysqli_stmt_bind_param($rejectOthers, 'ii', $productId, $bidId);
     mysqli_stmt_execute($rejectOthers);
 
     // Mark product sold
-    $sold = mysqli_prepare($conn, "UPDATE p SET product_availability = 'sold' WHERE id = ?");
+    $sold = mysqli_prepare($conn, "UPDATE products SET product_availability = 'sold' WHERE id = ?");
     mysqli_stmt_bind_param($sold, 'i', $productId);
     mysqli_stmt_execute($sold);
 
     // Create purchase record
     $purchase = mysqli_prepare($conn,
-        "INSERT INTO purchase (bid_id, product_id, buyer_id, seller_id, amount_paid)
+        "INSERT INTO purchases (bid_id, product_id, buyer_id, seller_id, amount_paid)
          VALUES (?, ?, ?, ?, ?)");
     mysqli_stmt_bind_param($purchase, 'iiiii', $bidId, $productId, $buyerId, $sellerId, $amount);
     mysqli_stmt_execute($purchase);

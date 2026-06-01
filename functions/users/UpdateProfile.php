@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function UpdateProfile($data, $conn)
 {
@@ -16,7 +16,7 @@ function UpdateProfile($data, $conn)
     }
 
     $stmt = mysqli_prepare($conn,
-        "UPDATE user SET name=?, username=?, surname=?, email=?, adress=?, phonenumber=? WHERE id=?");
+        "UPDATE users SET name=?, username=?, surname=?, email=?, adress=?, phonenumber=? WHERE id=?");
     mysqli_stmt_bind_param($stmt, 'ssssssi', $name, $username, $surname, $email, $adress, $phonenumber, $userId);
     $result = mysqli_stmt_execute($stmt);
 

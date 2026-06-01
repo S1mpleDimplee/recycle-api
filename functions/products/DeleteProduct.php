@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 function DeleteProduct($data, $conn)
 {
@@ -11,7 +11,7 @@ function DeleteProduct($data, $conn)
     }
 
     // Fetch product owner
-    $check = mysqli_prepare($conn, "SELECT user_id FROM p WHERE id = ?");
+    $check = mysqli_prepare($conn, "SELECT user_id FROM products p WHERE id = ?");
     mysqli_stmt_bind_param($check, 'i', $id);
     mysqli_stmt_execute($check);
     $checkResult = mysqli_stmt_get_result($check);
@@ -28,7 +28,7 @@ function DeleteProduct($data, $conn)
         return;
     }
 
-    $stmt = mysqli_prepare($conn, "DELETE FROM p WHERE id = ?");
+    $stmt = mysqli_prepare($conn, "DELETE FROM products WHERE id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $id);
     $result = mysqli_stmt_execute($stmt);
 

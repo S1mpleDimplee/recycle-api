@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 // Admin – update any user's data including role
 function UpdateUserData($data, $conn)
@@ -23,11 +23,11 @@ function UpdateUserData($data, $conn)
 
     if ($verified !== null) {
         $stmt = mysqli_prepare($conn,
-            "UPDATE user SET name=?, username=?, surname=?, email=?, adress=?, phonenumber=?, role=?, email_verified=? WHERE id=?");
+            "UPDATE users SET name=?, username=?, surname=?, email=?, adress=?, phonenumber=?, role=?, email_verified=? WHERE id=?");
         mysqli_stmt_bind_param($stmt, 'sssssssii', $name, $username, $surname, $email, $adress, $phonenumber, $role, $verified, $userId);
     } else {
         $stmt = mysqli_prepare($conn,
-            "UPDATE user SET name=?, username=?, surname=?, email=?, adress=?, phonenumber=?, role=? WHERE id=?");
+            "UPDATE users SET name=?, username=?, surname=?, email=?, adress=?, phonenumber=?, role=? WHERE id=?");
         mysqli_stmt_bind_param($stmt, 'sssssssi', $name, $username, $surname, $email, $adress, $phonenumber, $role, $userId);
     }
 
