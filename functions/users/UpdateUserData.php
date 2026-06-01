@@ -1,49 +1,42 @@
-<?php
+﻿<?php
 
-function UpdateUserData($data, $connection)
+// Admin – update any user's data including role
+function UpdateUserData($data, $conn)
 {
-   $userId = $data['id'] ?? '';
-   $name = $data['name'] ?? '';
-   $email = $data['email'] ?? '';
-   $phonenumber = $data['phonenumber'] ?? '';
-   $role = $data['role'] ?? 0;
-   $verified = $data['email_verified'] ?? 0;
+    $adminId     = $data['adminid']     ?? '';
+    $userId      = $data['userid']      ?? '';
+    $name        = $data['name']        ?? '';
+    $username    = $data['username']    ?? '';
+    $surname     = $data['surname']     ?? '';
+    $email       = $data['email']       ?? '';
+    $adress      = $data['adress']      ?? '';
+    $phonenumber = $data['phonenumber'] ?? '';
+    $role        = $data['role']        ?? 'user';
+    $verified    = isset($data['email_verified']) ? (int)$data['email_verified'] : null;
 
-   // Address fields
-   $street = $data['street'] ?? '';
-   $housenumber = $data['housenumber'] ?? '';
-   $addition = $data['addition'] ?? '';
-   $zipcode = $data['zipcode'] ?? '';
-   $city = $data['city'] ?? '';
+    if (empty($adminId) || empty($userId)) {
+        echo json_encode(["success" => false, "message" => "adminid en userid zijn verplicht"]);
+        return;
+    }
 
-   if (empty($userId)) {
-      echo json_encode(["success" => false, "message" => "Gebruiker ID is verplicht"]);
-      return;
-   }
+    requireAdmin($adminId, $conn);
 
-   $query = "UPDATE user SET name='$name', email='$email', phonenumber='$phonenumber', role='$role', email_verified='$verified' WHERE id='$userId'";
-   $result = mysqli_query($connection, $query);
+    if ($verified !== null) {
+        $stmt = mysqli_prepare($conn,
+            "UPDATE users SET name=?, username=?, surname=?, email=?, adress=?, phonenumber=?, role=?, email_verified=? WHERE id=?");
+        mysqli_stmt_bind_param($stmt, 'sssssssii', $name, $username, $surname, $email, $adress, $phonenumber, $role, $verified, $userId);
+    } else {
+        $stmt = mysqli_prepare($conn,
+            "UPDATE users SET name=?, username=?, surname=?, email=?, adress=?, phonenumber=?, role=? WHERE id=?");
+        mysqli_stmt_bind_param($stmt, 'sssssssi', $name, $username, $surname, $email, $adress, $phonenumber, $role, $userId);
+    }
 
-   if (!$result) {
-      echo json_encode(["success" => false, "message" => "Fout bij updaten gebruiker: " . mysqli_error($connection)]);
-      return;
-   }
+    $result = mysqli_stmt_execute($stmt);
 
-   // Check if address exists
-   $check = mysqli_query($connection, "SELECT id FROM address WHERE user_id = '$userId'");
+    if (!$result) {
+        echo json_encode(["success" => false, "message" => "Fout bij bijwerken: " . mysqli_error($conn)]);
+        return;
+    }
 
-   if (mysqli_num_rows($check) > 0) {
-      $query = "UPDATE address SET street='$street', housenumber='$housenumber', addition='$addition', zipcode='$zipcode', city='$city' WHERE user_id='$userId'";
-   } else {
-      $query = "INSERT INTO address (user_id, street, housenumber, addition, zipcode, city) VALUES ('$userId', '$street', '$housenumber', '$addition', '$zipcode', '$city')";
-   }
-
-   $result = mysqli_query($connection, $query);
-
-   if (!$result) {
-      echo json_encode(["success" => false, "message" => "Fout bij updaten adres: " . mysqli_error($connection)]);
-      return;
-   }
-
-   echo json_encode(["success" => true, "message" => "Gebruiker succesvol bijgewerkt"]);
+    echo json_encode(["success" => true, "message" => "Gebruiker succesvol bijgewerkt"]);
 }
